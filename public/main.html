@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="../../favicon.ico">
+
+    <title>Noticall AD Manager</title>
+
+    <!-- Bootstrap core CSS -->
+    <link rel="stylesheet" href="stylesheets/bootstrap/css/bootstrap.css">
+
+    <!-- Custom styles for this template -->
+    <link rel="stylesheet" href="stylesheets/main.css">
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+  </head>
+
+  <body>
+
+    <div class="container">
+        <div class="row">
+            <div class="col-xs-12 col-sm-12 col-md-offset-2 col-md-8">
+                <div class="well well-sm">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <legend class="legend-margin"><i class="glyphicon glyphicon-globe"></i> Noticall AD Server</legend>
+                        </div>
+                        <div class="panel-body">
+                            <ul class="nav nav-tabs" role="tablist">
+                                <li class="active"><a href="#summaryTab" role="tab" data-toggle="tab">Summary</a></li>
+                                <li><a href="#uploadTab" role="tab" data-toggle="tab">Upload</a></li>
+                                <li><a href="#nullTab" role="tab" data-toggle="tab">Null</a></li>
+                                <li><a href="#null2Tab" role="tab" data-toggle="tab">Null2</a></li>
+                            </ul>
+                            <div class="bg padding-10">
+                                <div class="tab-content padding-10">
+                                    <div class="tab-pane fade in active center" id="summaryTab">
+                                        <ul class="list-group">
+                                            <li class="list-group-item">
+                                                <img alt="Test Box" src="http://placehold.it/100x100" />
+                                                Test
+                                                <div class="pull-right action-buttons">
+                                                    <a href="http://www.jquery2dotnet.com"><span class="glyphicon glyphicon-pencil"></span></a>
+                                                    <a href="http://www.jquery2dotnet.com" class="trash"><span class="glyphicon glyphicon-trash"></span></a>
+                                                    <a href="http://www.jquery2dotnet.com" class="flag"><span class="glyphicon glyphicon-flag"></span></a>
+                                                </div>
+                                            </li>
+                                            <li class="list-group-item">
+                                                Test
+                                                <div class="pull-right action-buttons">
+                                                    <a href="http://www.jquery2dotnet.com"><span class="glyphicon glyphicon-pencil"></span></a>
+                                                    <a href="http://www.jquery2dotnet.com" class="trash"><span class="glyphicon glyphicon-trash"></span></a>
+                                                    <a href="http://www.jquery2dotnet.com" class="flag"><span class="glyphicon glyphicon-flag"></span></a>
+                                                </div>
+                                            </li>
+                                            <li class="list-group-item">
+                                                Test
+                                                <div class="pull-right action-buttons">
+                                                    <a href="http://www.jquery2dotnet.com"><span class="glyphicon glyphicon-pencil"></span></a>
+                                                    <a href="http://www.jquery2dotnet.com" class="trash"><span class="glyphicon glyphicon-trash"></span></a>
+                                                    <a href="http://www.jquery2dotnet.com" class="flag"><span class="glyphicon glyphicon-flag"></span></a>
+                                                </div>
+                                            </li>
+                                            <li class="list-group-item">
+                                                Test
+                                                <div class="pull-right action-buttons">
+                                                    <a href="http://www.jquery2dotnet.com"><span class="glyphicon glyphicon-pencil"></span></a>
+                                                    <a href="http://www.jquery2dotnet.com" class="trash"><span class="glyphicon glyphicon-trash"></span></a>
+                                                    <a href="http://www.jquery2dotnet.com" class="flag"><span class="glyphicon glyphicon-flag"></span></a>
+                                                </div>
+                                            </li>
+                                            <li class="list-group-item">
+                                                Test
+                                                <div class="pull-right action-buttons">
+                                                    <a href="http://www.jquery2dotnet.com"><span class="glyphicon glyphicon-pencil"></span></a>
+                                                    <a href="http://www.jquery2dotnet.com" class="trash"><span class="glyphicon glyphicon-trash"></span></a>
+                                                    <a href="http://www.jquery2dotnet.com" class="flag"><span class="glyphicon glyphicon-flag"></span></a>
+                                                </div>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                    <div class="tab-pane fade" id="uploadTab">
+                                        <form
+                                            class="form" role="form"
+                                            id        =  "mp3UploadForm"
+                                            enctype   =  "multipart/form-data"
+                                            action    =  "/files/upload"
+                                            method    =  "post"
+                                        >
+                                            <input type="file" class="form-control" name="ADmp3" />
+                                            <input type="file" class="form-control" name="ADimage" />
+                                            <button class="btn btn-lg btn-primary btn-block" type="submit">Upload Mp3</button>
+                                        </form>
+                                    </div>
+                                    <div class="tab-pane fade" id="nullTab">
+                                        <div class="form-group">
+                                            <label for="country">Country : </label>
+                                            <input type="text" class="form-control" id="country" />
+                                        </div>
+                                    </div>
+                                    <div class="tab-pane fade" id="null2Tab">
+                                        <div class="form-group">
+                                            <label for="url">URL : </label>
+                                            <input type="text" class="form-control" id="url" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div> <!-- /container -->
+    <script type="text/javascript" src="javascripts/jquery-1.11.1.js"></script>
+    <script type="text/javascript" src="stylesheets/bootstrap/js/bootstrap.js"></script>
+  </body>
+</html>
