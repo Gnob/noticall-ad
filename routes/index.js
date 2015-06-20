@@ -4,13 +4,24 @@ var router = express.Router();
 /* GET home page. */
 router.get('/', function(req, res, next) {
     //res.render('index', { title: 'Express' });
-    res.sendfile("index.html");
+    if (req.mySession.isSigned) {
+        res.redirect("/main");
+    }
+    else {
+        res.redirect("/signin");
+    }
+    //res.sendfile("index.html");
 });
 
 /* GET signin page. */
 router.get('/signin', function(req, res, next) {
     //res.render('index', { title: 'Express' });
-    res.render("signin");
+    if (req.mySession.isSigned) {
+        res.redirect("/main");
+    }
+    else {
+        res.render("signin");
+    }
 });
 
 /* GET signup page. */

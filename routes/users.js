@@ -7,8 +7,31 @@ router.get('/', function(req, res, next) {
 });
 
 router.post('/signin', function(req, res) {
+    // console.log(req.headers);
     var usermail = req.body.usermail, pw = req.body.pw;
-    console.log(req.is('json'));// + ' / ' + pw);
+
+    console.log(usermail + '/ ' + pw);// + ' / ' + pw);
+    console.log(req.mySession);
+
+    if (!req.mySession.isSigned) {
+        req.mySession.isSigned = true;
+        req.mySession.usermail = usermail;
+        // TODO: 닉네임 가져오기 구현
+        // req.mySession.username = username;
+    }
+
+    res.redirect("/main");
+});
+
+router.get('/signout', function(req, res) {
+    // console.log(req.headers);
+    console.log(req.mySession);
+
+    if (req.mySession.isSigned) {
+        req.mySession.destroy();  // 세션 삭제
+        // res.clearCookie(''); // 세션 쿠키 삭제
+    }
+    res.redirect("/signin");
 });
 
 module.exports = router;
