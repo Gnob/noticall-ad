@@ -31,10 +31,12 @@ router.get('/', function(req, res, next) {
 });
 
 router.post('/upload',function(req, res) {
+    console.log('test....');
     if(done==true){
         console.log(req.files);
         res.end("File uploaded.");
     }
+    console.log('test.... done');
 });
 
 

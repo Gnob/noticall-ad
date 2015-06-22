@@ -1,6 +1,7 @@
 var express = require('express');
 var router = express.Router();
 
+
 router.get('/insert', function(req, res, next) {
     var user = {
         'username': 'Tester',
@@ -8,35 +9,62 @@ router.get('/insert', function(req, res, next) {
         'pw': 'testtest'
     };
 
-    var query = req.app.locals.connection.query('INSERT INTO advertiser SET ?', user, function(err, result) {
-        if (err) {
-            console.error(err);
-            throw err;
-        }
+    var pool = req.app.locals.pool;
 
-        console.log(query);
-        console.log('\n');
-        console.log(result);
-        res.status(200).send('success');
+    pool.getConnection(function(err, connection) {
+        var query = connection.query('INSERT INTO advertiser SET ?', user, function(err, result) {
+            connection.release();
+
+            if (err) {
+                console.error(err);
+                throw err;
+            }
+
+            console.log(query);
+            console.log('\n');
+            console.log(result);
+
+            res.status(200).send('success');
+        });
     });
+
 });
 
 
 router.get('/select', function(req, res, next) {
-    var query = req.app.locals.connection.query('SELECT * FROM advertiser', function(err, rows){
-        console.log(rows);
-        res.json(rows);
-    });
+    var pool = req.app.locals.pool;
 
-    console.log(query);
+    pool.getConnection(function(err, connection) {
+        var query = connection.query('SELECT * FROM advertiser', function(err, rows){
+            connection.release();
+
+            console.log(rows);
+
+            res.json(rows);
+        });
+    });
 });
 
 
 router.get('/where', function(req, res, next) {
-    var query = req.app.locals.connection.query('SELECT * FROM advertiser where username='
-            + req.app.locals.mysql_escape(req.query.username), function(err, rows) {
-        console.log(rows);
-        res.json(rows);
+    var pool = req.app.locals.pool;
+    var mysql_escape = req.app.locals.mysql_escape;
+
+    pool.getConnection(function(err, connection) {
+        var query = connection.query('SELECT * FROM advertiser where username='
+                + mysql_escape(req.query.username)
+                + ' and pw=' + mysql_escape(req.query.pw), function(err, rows) {
+            connection.release();
+
+            if (err) {
+                console.error(err);
+                throw err;
+            }
+
+            console.log(rows);
+
+            res.json(rows);
+        });
     });
 });
 

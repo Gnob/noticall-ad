@@ -15,23 +15,14 @@ var app = express();
 
 app.locals.mysql_escape = mysql.escape;
 
-app.locals.connection = mysql.createConnection({
-    host:'localhost',
+app.locals.pool = mysql.createPool({
+    host: 'localhost',
     port: 3306,
     user: 'root',
     password: 'tkdqhd1!',
-    database: 'noticall_ad'
-});
-
-app.locals.connection.connect(function(err) {
-    if (err) {
-        console.error('Database connection error');
-        console.error(err);
-        throw err;
-    }
-    else {
-        console.log("Database is connected... \n\n");
-    }
+    database: 'noticall_ad',
+    connectionLimit: 20,
+    waitForConnections: true
 });
 
 // view engine setup
