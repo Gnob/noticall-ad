@@ -8,7 +8,8 @@ router.get('/', function(req, res, next) {
 
 router.post('/signin', function(req, res) {
     // console.log(req.headers);
-    var usermail = req.body.usermail, pw = req.body.pw;
+    var usermail = req.body.usermail;
+    var pw = req.body.pw;
 
     console.log(usermail + '/ ' + pw);// + ' / ' + pw);
     console.log(req.mySession);
@@ -21,6 +22,26 @@ router.post('/signin', function(req, res) {
     }
 
     res.redirect("/main");
+});
+
+router.post('/signup', function(req, res) {
+    // console.log(req.headers);
+    var username = req.body.username;
+    var usermail = req.body.usermail;
+    var pw = req.body.pw;
+
+    console.log(username + ' / ' + usermail + ' / ' + pw);
+    console.log(req.mySession);
+
+    if (req.mySession.isSigned) {
+        req.send("You're already signed in.");
+    }
+    else {
+        req.mySession.isSignedUp = true;
+        console.log(JSON.stringify(req.mySession));
+    }
+
+    res.redirect("/signin");
 });
 
 router.get('/signout', function(req, res) {

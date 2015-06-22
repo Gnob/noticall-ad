@@ -15,13 +15,18 @@ router.get('/', function(req, res, next) {
 
 /* GET signin page. */
 router.get('/signin', function(req, res, next) {
+    console.log("/signin :: " + JSON.stringify(req.mySession));
+    var isSignedUp = req.mySession.isSignedUp;
+
     //res.render('index', { title: 'Express' });
     if (req.mySession.isSigned) {
         res.redirect("/main");
     }
-    else {
-        res.render("signin");
+    else if (isSignedUp){
+        req.mySession.destroy();
     }
+
+    res.render("signin", { isSignedUp: isSignedUp });
 });
 
 /* GET signup page. */

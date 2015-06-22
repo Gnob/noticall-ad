@@ -9,7 +9,7 @@
     <meta name="author" content="">
     <!-- <link rel="icon" href="../../favicon.ico"> -->
 
-    <title>Signin Template for Bootstrap</title>
+    <title>Sign in - Noticall AD Manager</title>
 
     <!-- Bootstrap core CSS -->
     <link rel="stylesheet" href="stylesheets/bootstrap/css/bootstrap.css">
@@ -27,24 +27,24 @@
   <body>
 
     <div class="container">
-
-    <div class="form-signin well well-sm">
-      <form id="signinForm" class="form" role="form" action="users/signin" method="post" enctype="application/json">
-        <legend><i class="glyphicon glyphicon-globe"></i> Noticall AD Server</legend>
-        <label for="usermail" class="sr-only">Email address</label>
-        <input type="email" id="usermail" name="usermail" class="form-control" placeholder="Email address" required autofocus>
-        <label for="pw" class="sr-only">Password</label>
-        <input type="password" id="pw" name="pw" class="form-control" placeholder="Password" required>
-        <div class="checkbox">
-          <label>
-            <input type="checkbox" value="remember-me"> Remember me
-          </label>
+        <div class="form-signin well well-sm">
+          <form id="signinForm" class="form" role="form" action="users/signin" method="post" enctype="application/json">
+            <legend><i class="glyphicon glyphicon-globe"></i> Noticall AD Server</legend>
+            <label for="usermail" class="sr-only">Email address</label>
+            <input type="email" id="usermail" name="usermail" class="form-control" placeholder="Email address" required autofocus>
+            <label for="pw" class="sr-only">Password</label>
+            <input type="password" id="pw" name="pw" class="form-control" placeholder="Password" required>
+            <div class="checkbox">
+              <label>
+                <input type="checkbox" value="remember-me"> Remember me
+              </label>
+            </div>
+            <button id="signinBtn" class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
+          </form>
         </div>
-
-        <button id="signinBtn" class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
-      </form>
-
-    </div>
+        <% if (isSignedUp) { %>
+            <div>회원가입을 하셨습니다. 로그인 해주세요.</div>
+        <% } %>
     </div> <!-- /container -->
   </body>
   <script type="text/javascript" src="javascripts/jquery-1.11.1.js"></script>

@@ -9,7 +9,7 @@
     <meta name="author" content="">
     <!-- <link rel="icon" href="../../favicon.ico"> -->
 
-    <title>Signup Template for Bootstrap</title>
+    <title>Sign up - Noticall AD Manager</title>
 
     <!-- Bootstrap core CSS -->
     <link rel="stylesheet" href="stylesheets/bootstrap/css/bootstrap.css">
@@ -29,19 +29,17 @@
       <div class="container">
           <div class="form-signup well well-sm">
               <legend><i class="glyphicon glyphicon-globe"></i> Sign up!</legend>
-              <form action="#" method="post" class="form" role="form">
+              <form method="post" class="form" role="form" action="users/signup" enctype="application/json">
               <input class="form-control" name="username" placeholder="User Name" type="text"
                   required autofocus />
-              <input class="form-control" name="youremail" placeholder="Your Email" type="email" required />
-              <input class="form-control" name="password" placeholder="New Password" type="password" required />
+              <input class="form-control" name="usermail" placeholder="Your Email" type="email" required />
+              <input class="form-control" name="pw" placeholder="New Password" type="password" required />
               <br />
-              <button class="btn btn-lg btn-primary btn-block" type="submit">
+              <button id="signUpBtn" class="btn btn-lg btn-primary btn-block" type="submit">
                   Sign up</button>
               </form>
           </div>
       </div>
-  </div>
-
-    </div> <!-- /container -->
+      
   </body>
 </html>
