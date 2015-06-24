@@ -4,9 +4,14 @@ var router = express.Router();
 
 
 function checkSignIn(req, res, next) {
-    console.log('middleware');
+    console.log(req.mySession);
     if (req.mySession.isSignedIn) {
-        return next();
+        if(req.mySession.isSuper) {
+            res.redirect('/manager');
+        }
+        else {
+            return next();
+        }
     }
 
     res.redirect('/signin');
@@ -18,12 +23,22 @@ function checkNotSignIn(req, res, next) {
         return next();
     }
 
-    res.redirect('/main');
+    if(req.mySession.isSuper) {
+        res.redirect('/manager');
+    }
+    else {
+        res.redirect('/main');
+    }
 }
 
 
 router.get('/', checkSignIn, function(req, res, next) {
     res.redirect("/main");
+});
+
+
+router.get('/router', function(req, res, next) {
+    res.render('router');
 });
 
 
@@ -58,23 +73,9 @@ router.get('/main', checkSignIn, function(req, res, next) {
         }
 
         console.log('successful finish list.');
-        res.render('main', { locs: locs, list: output });
-    })
+        res.render('main', { username : req.mySession.username, locs: locs, list: output });
+    });
 });
 
-function loadUser(req, res, next) {
-    if (req.mySession.isSignedIn) {
-        User.findById(req.session.user_id, function(user) {
-            if (user) {
-                req.currentUser = user;
-                next();
-            } else {
-                res.redirect('/sessions/new');
-            }
-        });
-    } else {
-        res.redirect('/sessions/new');
-    }
-}
 
 module.exports = router;

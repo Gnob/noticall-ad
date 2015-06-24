@@ -6,10 +6,11 @@
 [FINISH] TODO: File Managing System 만들기
              - ComboBox 만들기
              - 지역 단위로만..
-TODO: item 리스트 뽑아주기
+[FINISH] TODO: item 리스트 뽑아주기
 TODO: Error 매끄럽게 처리하기
 TODO: 전부 REST API 방식으로 바꿀지 정하기
 TODO: File Serving REST API 만들기 (파일 목록 뽑아주기)
+TODO: 보안 강화하기
 
 <광고주 in Android>
 TODO: AD Manager 만들기

@@ -4,10 +4,11 @@ var query = require('./query');
 var router = express.Router();
 
 
-router.get('/allow/:itemId', function(req, res, next) {
+router.get('/allow/:itemId/:flag', function(req, res, next) {
     var pool = req.app.locals.pool;
+    var flag = req.params.flag == 'o' ? true : false;
 
-    query.allowItem(pool, req.params.itemId, 0, function(err) {
+    query.allowItem(pool, req.params.itemId, flag, function(err) {
         try {
             if (err) {
                 throw err;
@@ -17,6 +18,31 @@ router.get('/allow/:itemId', function(req, res, next) {
         } catch (ex) {
             console.error(ex);
             if (ex.name == 'NotExistItem') {
+                res.json({ msg: ex.message });
+            } else {
+                res.json(ex.message);
+            }
+        }
+    });
+});
+
+
+router.get('/super/:username/:flag', function(req, res, next) {
+    var TAG = '[/super]';
+
+    var pool = req.app.locals.pool;
+    var flag = req.params.flag == 'o' ? true : false;
+
+    query.giveSuper(pool, req.params.username, flag, function(err) {
+        try {
+            if (err) {
+                throw err;
+            }
+
+            res.send('Update!');
+        } catch (ex) {
+            console.error(ex);
+            if (ex.name == 'NotExistUser') {
                 res.json({ msg: ex.message });
             } else {
                 res.json(ex.message);

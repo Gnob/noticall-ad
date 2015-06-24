@@ -75,7 +75,8 @@ router.post('/signin', checkNotSignIn, function(req, res) {
                 req.mySession.username = rows[0].username;
             }
 
-            res.redirect("/main");
+            // res.redirect("/main");
+            res.json({ path: '/main' });
         }
     });
 });

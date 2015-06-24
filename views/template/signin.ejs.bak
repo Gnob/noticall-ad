@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" ng-app="noticallAD">
+<html lang="en">
   <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -25,20 +25,18 @@
   </head>
 
   <body>
-    <div class="container" ng-controller="SignInCtrl as signin">
+
+    <div class="container">
         <div class="form-signin well well-sm">
-          <form name="signInForm" class="form" role="form" ng-submit="signin.submit()" novalidate>
+          <form id="signinForm" class="form" role="form" action="users/signin" method="post" enctype="application/json">
             <legend><i class="glyphicon glyphicon-globe"></i> Noticall AD Server</legend>
             <label for="mail" class="sr-only">Email address</label>
-            <input type="email" name="mail" class="form-control" placeholder="Email address" ng-model="signin.user.mail" required autofocus>
-            <p ng-show="signInForm.mail.$invalid && !signInForm.mail.$pristine" class="help-block">Enter a valid email.</p>
+            <input type="email" id="mail" name="mail" class="form-control" placeholder="Email address" required autofocus>
             <label for="pw" class="sr-only">Password</label>
-            <input type="password" name="pw" class="form-control" placeholder="Password" ng-model="signin.user.pw" ng-minlength="4" ng-maxlength="40" required>
-            <p ng-show="signInForm.pw.$error.minlength" class="help-block">Password is too short.</p>
-            <p ng-show="signInForm.pw.$error.maxlength" class="help-block">Password is too long.</p>
+            <input type="password" id="pw" name="pw" class="form-control" placeholder="Password" required>
 
             <button id="signupBtn" class="btn btn-lg btn-warning" onclick="location.href='./signup';">회원가입</button>
-            <button class="btn btn-lg btn-primary pull-right" type="submit" ng-disabled="signInForm.$invalid || signin.submitLbl != '로그인'">{{signin.submitLbl}}</button>
+            <button id="signinBtn" class="btn btn-lg btn-primary pull-right" type="submit">로그인</button>
           </form>
         </div>
         <% if (isSignedUp) { %>
@@ -46,10 +44,8 @@
         <% } %>
     </div> <!-- /container -->
   </body>
-  <script src="javascripts/lib/angular/angular.min.js"></script>
-  <script src="javascripts/lib/angular-route/angular-route.min.js"></script>
-  <script src="javascripts/app/app.js"></script>
-  <script src="javascripts/app/controller/SignInCtrl.js"></script>
+  <script type="text/javascript" src="javascripts/jquery-1.11.1.js"></script>
+  <script type="text/javascript" src="javascripts/base64v1_0.js"></script>
   <!-- // <script type="text/javascript" src="javascripts/adserver.js"></script>
   // <script>
   //     $(document).ready(function(){

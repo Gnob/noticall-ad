@@ -13,10 +13,29 @@ function checkSuper(req, res, next) {
 }
 
 
-router.get('/allow/:itemId', checkSuper, function(req, res, next) {
+router.get('/', checkSuper, function(req, res, next) {
+    //res.render('index', { title: 'Express' });
+    var locs = ["서울", "경기", "강원", "충북", "충남", "전북", "전남", "경북", "경남", "제주"];
+
     var pool = req.app.locals.pool;
 
-    query.allowItem(pool, req.params.itemId, 0, function(err) {
+    query.requestList(pool, null, null, function (err, output) {
+        if (err) {
+            console.log("ERORR!! requestList");
+            throw err;
+        }
+
+        console.log('successful finish list.');
+        res.render('manage', { username : req.mySession.username, locs: locs, list: output });
+    });
+});
+
+
+router.get('/allow/:itemId/:flag', checkSuper, function(req, res, next) {
+    var pool = req.app.locals.pool;
+    var flag = req.params.flag == 'o' ? true : false;
+
+    query.allowItem(pool, req.params.itemId, flag, function(err) {
         try {
             if (err) {
                 throw err;
@@ -35,12 +54,13 @@ router.get('/allow/:itemId', checkSuper, function(req, res, next) {
 });
 
 
-router.get('/super/:username', checkSuper, function(req, res) {
+router.get('/super/:username/:flag', checkSuper, function(req, res, next) {
     var TAG = '[/super]';
 
     var pool = req.app.locals.pool;
+    var flag = req.params.flag == 'o' ? true : false;
 
-    query.giveSuper(pool, req.params.username, 0, function(err) {
+    query.giveSuper(pool, req.params.username, flag, function(err) {
         try {
             if (err) {
                 throw err;

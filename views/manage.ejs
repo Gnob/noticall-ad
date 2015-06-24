@@ -9,7 +9,7 @@
     <meta name="author" content="">
     <!-- <link rel="icon" href="../../favicon.ico"> -->
 
-    <title>Noticall AD Manager</title>
+    <title>Manager page - Noticall AD Manager</title>
 
     <!-- Bootstrap core CSS -->
     <link rel="stylesheet" href="stylesheets/bootstrap/css/bootstrap.css">
@@ -33,9 +33,9 @@
                     <div class="panel panel-default">
                         <div class="panel-heading">
                             <div class="width-50 inline-block">
-                                <legend class="legend-margin"><i class="glyphicon glyphicon-globe"></i> Noticall AD Server</legend>
+                                <legend class="legend-margin"><i class="glyphicon glyphicon-globe"></i> Manager page</legend>
                             </div>
-                            <span class="margin-left-50"><%= username %> is sign in. </span>
+                            <span class="margin-left-50">[Super] <%= username %> is sign in. </span>
                             <a href="../users/signout"><button class="btn btn-danger pull-right" id="signOutBtn"><span class="glyphicon glyphicon-user"></span> Sign out</button></a>
                         </div>
                         <div class="panel-body">
@@ -56,28 +56,7 @@
                                             <% } %>
                                             <% if (list.length > 0) { %>
                                                 <% list.forEach(function(item){ %>
-                                                    <li class="list-group-item">
-                                                        <img alt="Test Box" width=100px src="<%= item.uri.replace(/\\/g, '/').replace('public/', './'); %>" />
-                                                        <%= item.title %> [<%= item.audio_count %> /
-                                                        <%= item.poster_count %>]
-                                                        <% if (item.allow == 0) { %>
-                                                            <br>
-                                                            <% if (!item.memo) { %>
-                                                            <span class="memo">관리자 승인 대기중입니다.</span>
-                                                            <% } %>
-                                                            <% if (item.memo) { %>
-                                                            <span class="memo"><%= item.memo %></span>
-                                                            <% } %>
-                                                        <% } %>
-                                                        <div class="pull-right action-buttons">
-                                                            <span class="label label-default"><%= item.location %></span>
-                                                            <% if (item.allow == 1) { %>
-                                                            <a href="./files/down/audio/<%= item.audio_id %>"><span class="glyphicon glyphicon-pencil"></span></a>
-                                                            <a href="./files/down/poster/<%= item.poster_id %>" class="flag"><span class="glyphicon glyphicon-flag"></span></a>
-                                                            <% } %>
-                                                            <a href="<%= './files/delete/' + item.list_id %>" class="trash"><span class="glyphicon glyphicon-trash"></span></a>
-                                                        </div>
-                                                    </li>
+                                                    <% include manage/list.ejs %>
                                                 <% }); %>
                                             <% } %>
                                         </ul>
@@ -143,12 +122,7 @@
     <script type="text/javascript" src="javascripts/jquery-1.11.1.js"></script>
     <script type="text/javascript" src="stylesheets/bootstrap/js/bootstrap.js"></script>
     <script type="text/javascript" src="javascripts/bootstrap.file-input.js"></script>
-<!--    <script type="text/javascript" src="javascripts/adserver.js"></script>
-    <script>
-        $(document).ready(function(){
-            $("#signOutBtn").on("click", doSignOut);
-        });
-    </script> -->
+    <script type="text/javascript" src="javascripts/adserver.js"></script>
     <script>
         // VBR? 에 대해선 지원 안하는 듯함.
         // $(document).ready(function(){
@@ -172,6 +146,7 @@
         // });
 
         $(document).ready(function () {
+            // $("#signOutBtn").on("click", doSignOut);
             $('input[type=file]').bootstrapFileInput();
         })
     </script>

@@ -21,10 +21,10 @@ function requestList(pool, columm, value, cb) {
 
             con = connection;
 
-            con.query('SELECT file_list.list_id, file_list.location, ad_item.title, ad_item.memo, ad_item.allow, file_list.audio_id, audio_files.filename AS audio_name, audio_files.down_count AS audio_count, file_list.poster_id From file_list ' +
+            con.query('SELECT file_list.location, ad_item.*, file_list.audio_id, audio_files.filename AS audio_name, audio_files.down_count AS audio_count, file_list.poster_id From file_list ' +
             'INNER JOIN ad_item ON file_list.list_id = ad_item.list_id ' +
             'INNER JOIN audio_files ON file_list.audio_id = audio_files.file_id ' +
-            'WHERE ' + columm + '=' + value, callback);
+            (columm ? 'WHERE ' + columm + '=' + value : ''), callback);
         },
         function(rows, result, callback) {
             if (rows.length == 0) {
@@ -39,7 +39,7 @@ function requestList(pool, columm, value, cb) {
 
                 con.query('SELECT poster_files.uri, poster_files.filename AS poster_name, poster_files.down_count AS poster_count From file_list ' +
                 'INNER JOIN ad_item ON file_list.list_id = ad_item.list_id ' +
-                'INNER JOIN poster_files ON file_list.poster_id = poster_files.file_id ' + 'WHERE ' + columm + '=' + value, function(err, rows) {
+                'INNER JOIN poster_files ON file_list.poster_id = poster_files.file_id ' + (columm ? 'WHERE ' + columm + '=' + value : ''), function(err, rows) {
                     callback(err, rows, output);
                 });
             }
@@ -437,7 +437,7 @@ function giveSuper(pool, username, mod, cb) {
         function(callback) {
             console.log(TAG + " query to change super parameter (UPDATE)");
 
-            con.query('UPDATE advertiser SET super=' + mod + ' WHERE username=' + username,
+            con.query('UPDATE advertiser SET super=' + mod + ' WHERE username="' + username + '"',
             function(err, result) { callback(err, result); });
         },
         function(result, callback) {
