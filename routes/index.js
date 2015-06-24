@@ -1,65 +1,65 @@
 var express = require('express');
+var query = require('./query');
 var router = express.Router();
 
-/* GET home page. */
-router.get('/', function(req, res, next) {
-    //res.render('index', { title: 'Express' });
-    var isSignedIn = req.mySession.isSignedIn;
 
-    if (isSignedIn) {
-        res.redirect("/main");
+function checkSignIn(req, res, next) {
+    console.log('middleware');
+    if (req.mySession.isSignedIn) {
+        return next();
     }
-    else {
-        res.redirect("/signin");
+
+    res.redirect('/signin');
+}
+
+function checkNotSignIn(req, res, next) {
+    console.log('middleware');
+    if (!req.mySession.isSignedIn) {
+        return next();
     }
-    //res.sendfile("index.html");
+
+    res.redirect('/main');
+}
+
+
+router.get('/', checkSignIn, function(req, res, next) {
+    res.redirect("/main");
 });
 
-/* GET signin page. */
-router.get('/signin', function(req, res, next) {
+
+router.get('/signin', checkNotSignIn, function(req, res, next) {
     console.log("/signin :: " + JSON.stringify(req.mySession));
-    var isSignedIn = req.mySession.isSignedIn;
     var isSignedUp = req.mySession.isSignedUp;
 
-    //res.render('index', { title: 'Express' });
-    if (isSignedIn) {
-        res.redirect("/main");
-    }
-    else {
-        if (isSignedUp){
-            req.mySession.destroy();
-        }
-
-        res.render("signin", { isSignedUp: isSignedUp });
+    if (isSignedUp){
+        req.mySession.destroy();
     }
 
+    res.render("signin", { isSignedUp: isSignedUp });
 });
 
-/* GET signup page. */
-router.get('/signup', function(req, res, next) {
-    //res.render('index', { title: 'Express' });
-    var isSignedIn = req.mySession.isSignedIn;
 
-    if (isSignedIn) {
-        res.redirect("/main");
-    }
-    else {
-        res.render("signup");
-    }
+router.get('/signup', checkNotSignIn, function(req, res, next) {
+    res.render("signup");
 });
 
 
 /* GET main page. */
-router.get('/main', function(req, res, next) {
+router.get('/main', checkSignIn, function(req, res, next) {
     //res.render('index', { title: 'Express' });
-    var isSignedIn = req.mySession.isSignedIn;
+    var locs = ["서울", "경기", "강원", "충북", "충남", "전북", "전남", "경북", "경남", "제주"];
 
-    if (!isSignedIn) {
-        res.redirect("/signin");
-    }
-    else {
-        res.render("main");
-    }
+    var pool = req.app.locals.pool;
+
+    query.requestList(pool, 'user_id', req.mySession.user_id, function (err, output) {
+        if (err) {
+            console.log("ERORR!! requestList");
+            throw err;
+        }
+
+        console.log('successful finish list.');
+        res.render('main', { locs: locs, list: output });
+    })
 });
 
 function loadUser(req, res, next) {

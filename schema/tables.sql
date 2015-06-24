@@ -1,12 +1,13 @@
  create database noticall_ad;
- 
+
  use noticall_ad;
- 
+
  create table advertiser(
 	`user_id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
 	`username` VARCHAR(20) NOT NULL,
 	`mail` VARCHAR(40) NOT NULL,
-	`pw` VARCHAR(20) NOT NULL
+	`pw` VARCHAR(20) NOT NULL,
+    `super` BOOLEAN NOT NULL DEFAULT FALSE
 ) engine=InnoDB DEFAULT charset=utf8;
 
  create table audio_files(
@@ -44,7 +45,9 @@
 	`item_id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
 	`user_id` INT NOT NULL,
 	`title` VARCHAR(100) NOT NULL,
+    `memo` VARCHAR(100) NULL DEFAULT NULL,
 	`list_id` INT NOT NULL,
+    `allow` BOOLEAN NOT NULL DEFAULT FALSE,
 	CONSTRAINT `ad_item_user_id_fk`
     FOREIGN KEY (`user_id`)
     REFERENCES `advertiser` (`user_id`)
@@ -54,4 +57,3 @@
     REFERENCES `file_list` (`list_id`)
     ON DELETE CASCADE ON UPDATE CASCADE
 ) engine=InnoDB DEFAULT charset=utf8;
-

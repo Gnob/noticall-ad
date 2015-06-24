@@ -34,12 +34,9 @@
             <input type="email" id="mail" name="mail" class="form-control" placeholder="Email address" required autofocus>
             <label for="pw" class="sr-only">Password</label>
             <input type="password" id="pw" name="pw" class="form-control" placeholder="Password" required>
-            <div class="checkbox">
-              <label>
-                <input type="checkbox" value="remember-me"> Remember me
-              </label>
-            </div>
-            <button id="signinBtn" class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
+
+            <button id="signupBtn" class="btn btn-lg btn-warning">회원가입</button>
+            <button id="signinBtn" class="btn btn-lg btn-primary pull-right" type="submit">로그인</button>
           </form>
         </div>
         <% if (isSignedUp) { %>
@@ -50,9 +47,11 @@
   <script type="text/javascript" src="javascripts/jquery-1.11.1.js"></script>
   <script type="text/javascript" src="javascripts/base64v1_0.js"></script>
   <script type="text/javascript" src="javascripts/adserver.js"></script>
-<!--  <script>
+  <script>
       $(document).ready(function(){
-          $("#signinBtn").on("click", doSignIn);
+          $("#signupBtn").on("click", function (e) {
+              location.href='./signup';
+          });
       });
-  </script> -->
+  </script>
 </html>
