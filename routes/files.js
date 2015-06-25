@@ -7,11 +7,12 @@ var router = express.Router();
 
 router.use(function(req, res, next) {
     console.log('middleware in files');
-    if (req.mySession.isSignedIn) {
+    if (req.mySession.token == req.get('Authorization')) {
+
         return next();
     }
 
-    res.redirect('/signin');
+    res.status(403).json({ path: '/signin' });
 });
 
 // middleware of /upload to set up MULTER with req, res object
@@ -93,8 +94,10 @@ router.use('/upload', function(req, res, next) {
 router.post('/upload', function(req, res) {
     var TAG = '[/upload]';
 
-    var mp3_file = req.files.ADmp3 && req.files.ADmp3[0];
-    var jpg_file = req.files.ADimage && req.files.ADimage[0];
+    console.log(req.files);
+
+    var mp3_file = req.files.dataSet && req.files.dataSet[0];
+    var jpg_file = req.files.dataSet && req.files.dataSet[1];
     var isSizeLimit = (mp3_file && mp3_file.truncated) || (jpg_file && jpg_file.truncated);
     var isValid = req.app.locals.isMp3 && req.app.locals.isJpg && !isSizeLimit;
 

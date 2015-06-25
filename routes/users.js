@@ -22,14 +22,33 @@ function checkNotSignIn(req, res, next) {
 }
 
 
+router.get('/confirm-login', function (req, res) {
+    res.send({ username: req.mySession.username || '' });
+});
+
+
 router.post('/signin', checkNotSignIn, function(req, res) {
+    console.log('init');
     var TAG = '[/signin]';
 
     var pool = req.app.locals.pool;
     var mysql_escape = req.app.locals.mysql_escape;
     var con;
 
-    var user = req.body;
+    var data = new Buffer(req.body.token, 'base64').toString('utf-8').split(':');
+    var pw = data[1];
+    for (var i = 2; i < data.length; i++) {
+        pw += data[i]
+    }
+
+    var user = {
+        mail: data[0],
+        pw: pw
+    };
+
+    console.log(req.body);
+    console.log(data);
+    console.log(user);
 
     async.waterfall([
         function(callback) {
@@ -58,25 +77,29 @@ router.post('/signin', checkNotSignIn, function(req, res) {
         else if (rows.length == 0) {
             console.log(TAG + ' Not valid mail or pw....');
             // TODO: 에러 페이지 구현 - [회원가입]이미 존재하는 이름...
-            res.json({msg: "[Error] 이메일 주소나 비밀번호를 확인해주세요."});
+            res.status(403).json({msg: "이메일 주소나 비밀번호를 확인해주세요."});
         }
         else if (rows.length > 1) {
             console.error(TAG + ' Unknown error : 중복된 가입자 정보가 존재합니다.');
             // TODO: 에러 페이지 구현 - [회원가입]이미 존재하는 이름...
-            res.json({msg: "[Error#01] 관리자에게 문의해주세요."});
+            res.status(403).json({msg: "알 수 없는 오류 입니다. 관리자에게 문의해주세요."});
         }
         else {
             console.log(TAG + ' Success sign in, redirect /main');
 
-            if (!req.mySession.isSignedIn) {
-                req.mySession.isSignedIn = true;
-                req.mySession.isSuper = rows[0].super;
-                req.mySession.user_id = rows[0].user_id;
-                req.mySession.username = rows[0].username;
-            }
+            req.mySession.isSignedIn = true;
+            req.mySession.isSuper = rows[0].super;
+            req.mySession.user_id = rows[0].user_id;
+            req.mySession.username = rows[0].username;
+            req.mySession.token = new Buffer(rows[0].username + ':' + rows[0].pw).toString('base64');
+
 
             // res.redirect("/main");
-            res.json({ path: '/main' });
+            res.json({
+                username: req.mySession.username,
+                token: req.mySession.token,
+                isSuper: req.mySession.isSuper
+            });
         }
     });
 });
@@ -150,7 +173,9 @@ router.post('/signup', checkNotSignIn, function(req, res) {
         console.log(TAG + ' Success sign up, redirect /signin');
 
         req.mySession.isSignedUp = true;
-        res.redirect("/signin");
+        // res.redirect("/signin");
+
+        res.json({ path: '/signin' });
     });
 });
 
@@ -161,7 +186,7 @@ router.get('/signout', checkSignIn, function(req, res) {
 
     req.mySession.destroy();  // 세션 삭제
 
-    res.redirect("/signin");
+    res.json({ path: '/signin' });
 });
 
 module.exports = router;

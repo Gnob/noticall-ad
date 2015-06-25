@@ -63,6 +63,7 @@ function requestList(pool, columm, value, cb) {
             for (var i = 0; i < rows.length; i++) {
                 for (var attr in rows[i])
                 { output[i][attr] = rows[i][attr]; }
+                output[i].uri = output[i].uri.replace(/\\/g, '/').replace('public/', './');
             }
 
             console.log(TAG + " Success Join");

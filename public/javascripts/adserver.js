@@ -1,4 +1,4 @@
-var baseUrl = "http://127.0.0.1:3000/";
+var baseUrl = "http://127.0.0.1:3000";
 var usermail;
 var pw;
 
@@ -53,9 +53,19 @@ var doSignIn = function() {
 };
 
 
-var doLogout = function() {
-	resetLoginString();
-	window.location = "login.html";
+var doSignOut = function() {
+	$.ajax({
+		type : 'get',
+		url : baseUrl + '/user/signout',
+		success : function(msg) {
+			alert("OK");
+			// location.href = "login.html";
+		},
+		error : function(msg) {
+			alert("Error!");
+			// console.log(msg.responseText);
+		},
+	});
 };
 
 // Utility Function

@@ -1,4 +1,5 @@
 var express = require('express');
+var path = require('path');
 var query = require('./query');
 var router = express.Router();
 
@@ -38,7 +39,7 @@ router.get('/', checkSignIn, function(req, res, next) {
 
 
 router.get('/router', function(req, res, next) {
-    res.render('router');
+    res.sendFile(path.join(__dirname, '../public/templates/', 'router.html'));
 });
 
 

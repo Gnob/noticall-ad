@@ -1,8 +1,68 @@
 var express = require('express');
 var async = require('async');
 var query = require('./query');
+var multiparty = require('multiparty');
 var router = express.Router();
 
+
+router.post('/upload', function(req, res, next) {
+    var count = 0;
+    var form = new multiparty.Form();
+
+    // Errors may be emitted
+    // Note that if you are listening to 'part' events, the same error may be
+    // emitted from the `form` and the `part`.
+    form.on('error', function(err) {
+      console.log('Error parsing form: ' + err.stack);
+    });
+
+    // Parts are emitted when parsing the form
+    form.on('part', function(part) {
+      // You *must* act on the part by reading it
+      // NOTE: if you want to ignore it, just call "part.resume()"
+
+      console.log(part);
+
+      if (!part.filename) {
+        // filename is not defined when this is a field and not a file
+        console.log('got field named ' + part.name);
+        // ignore field's content
+        part.resume();
+      }
+
+      if (part.filename) {
+        // filename is defined when this is a file
+        count++;
+        console.log('got file named ' + part.name);
+        // ignore file's content here
+        part.resume();
+      }
+
+      part.on('error', function(err) {
+        // decide what to do
+      });
+    });
+
+    // Close emitted after form parsed
+    form.on('close', function() {
+      console.log('Upload completed!');
+    });
+
+    // Parse req
+    form.parse(req, function(err, fields, files) {
+      Object.keys(fields).forEach(function(name) {
+        console.log('got field named ' + name);
+      });
+
+      Object.keys(files).forEach(function(name) {
+        console.log('got file named ' + name);
+        console.log(files);
+      });
+
+      console.log('Upload completed!');
+      res.json({msg:'finish'})
+    });
+});
 
 router.get('/allow/:itemId/:flag', function(req, res, next) {
     var pool = req.app.locals.pool;

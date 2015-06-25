@@ -1,11 +1,11 @@
-<div class="form-signin well well-sm" ng-controller="SignInCtrl as signin">
+<div class="form-signin well well-sm">
   <form name="signInForm" class="form" role="form" ng-submit="signin.submit()" novalidate>
     <legend><i class="glyphicon glyphicon-globe"></i> Noticall AD Server</legend>
     <label for="mail" class="sr-only">Email address</label>
     <input type="email" name="mail" class="form-control" placeholder="Email address" ng-model="signin.user.mail" required autofocus>
-    <p ng-show="signInForm.mail.$invalid && !signInForm.mail.$pristine" class="help-block">Enter a valid email.</p>
     <label for="pw" class="sr-only">Password</label>
-    <input type="password" name="pw" class="form-control" placeholder="Password" ng-model="signin.user.pw" ng-minlength="4" ng-maxlength="40" required>
+    <input type="password" name="pw" class="form-control" placeholder="Password" ng-model="signin.user.pw" ng-minlength="4" ng-maxlength="20" required>
+    <p ng-show="signInForm.mail.$invalid && !signInForm.mail.$pristine" class="help-block">Enter a valid email.</p>
     <p ng-show="signInForm.pw.$error.minlength" class="help-block">Password is too short.</p>
     <p ng-show="signInForm.pw.$error.maxlength" class="help-block">Password is too long.</p>
 

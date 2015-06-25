@@ -9,9 +9,9 @@
 
     app.controller('SignInCtrl', SignInCtrl);
 
-    SignInCtrl.$inject = ['$scope', '$http', '$q', '$window', 'baseUrl'];
+    SignInCtrl.$inject = ['$scope', '$window', '$location', 'auth', 'baseUrl'];
 
-    function SignInCtrl($scope, $http, $q, $window, baseUrl) {
+    function SignInCtrl($scope, $window, $location, auth, baseUrl) {
         var vm = this;
 
         vm.user = {
@@ -25,15 +25,21 @@
             console.log(vm.user);
 
             if ($scope.signInForm.$valid) {
-                vm.submitLbl = "로그인 중...";
+                vm.submitLbl = "요청중...";
 
-                return signIn(vm.user)
-                    .then()
+                return auth.signIn(vm.user)
+                    .then(function (data) {
+                        console.log('login success routine');
+                        console.log(data);
+                        $location.path('/main');
+                    })
                     .catch(function () {
                         console.log('Sign in canceled');
+
+                        vm.user.pw = '';
                     })
                     .finally(function () {
-                        vm.submitLbl = "완료";
+                        vm.submitLbl = vm.user.pw ? "완료" : "로그인";
                     });
             }
             else {
@@ -41,41 +47,11 @@
             }
         }
 
-        //////////////////////////////////
+        var user = {};
 
-        function signIn(user) {
-            var reqConfig = {
-                method: 'POST',
-                url: baseUrl + '/users/signin',
-                data: user
-            };
-
-
-            return $http(reqConfig)
-                .then(signInComplete)
-                .catch(signInFailed);
-
-            ///////////////////////////
-
-            function signInComplete(response) {
-                if (response.status == 200) {
-                    console.log("Success to login server");
-                }
-                else {
-                    console.log('Success to sign in but unknown behavior.');
-                }
-                console.log(JSON.stringify(response));
-
-                $window.location.href = baseUrl + response.data.path;
-            }
-
-
-            function signInFailed(error) {
-                console.log('Fail to sign in');
-                console.log(JSON.stringify(error));
-
-                return $q.reject();
-            }
-        }
+        auth.getUserInfo(user)
+        .then(function (userInfo) {
+            $location.path('/main');
+        });
     }
 }) ();

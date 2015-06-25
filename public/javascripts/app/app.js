@@ -5,7 +5,7 @@
 (function() {
   "use strict";
 
-  var app = angular.module('noticallAD', ['ngRoute']);
+  var app = angular.module('noticallAD', ['ngRoute', 'ngCookies', 'ui.bootstrap', 'ngFileUpload']);
 
   app.value('projectName', 'Noticall AD Server');
   //app.value('baseUrl', 'http://210.118.74.170:9000/'); // SECMEM
@@ -15,12 +15,23 @@
      $routeProvider
   .when('/signin', {
             controller:'SignInCtrl',
-            templateUrl: 'view/template/signin.html'
+            controllerAs: 'signin',
+            templateUrl: 'templates/signin.html'
   })
   .when('/signup', {
-            // controller:'SignUpCtrl',
-            templateUrl: 'view/template/signup.html'
+            controller:'SignUpCtrl',
+            controllerAs: 'signup',
+            templateUrl: 'templates/signup.html'
+  })
+  .when('/main', {
+            controller:'MainCtrl',
+            controllerAs: 'main',
+            templateUrl: 'templates/main.html'
   })
   .otherwise({ redirectTo: '/signin' });
+  });
+
+  app.config(function($locationProvider) {
+      $locationProvider.html5Mode(true).hashPrefix('!');
   });
 })();
