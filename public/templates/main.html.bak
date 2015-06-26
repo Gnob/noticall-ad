@@ -1,0 +1,127 @@
+
+<div class="row">
+  <div class="col-xs-12 col-sm-12 col-md-offset-2 col-md-8">
+      <div class="panel panel-primary">
+        <div class="panel-heading">
+          <div class="width-50 inline-block">
+            <legend class="legend-margin"><i class="glyphicon glyphicon-globe"></i> Noticall AD Server</legend>
+          </div>
+          <span class="margin-left-50">{{ main.username }} is sign in. </span>
+          <button class="btn btn-danger pull-right" ng-click="main.signout()"><span class="glyphicon glyphicon-user"></span> Sign out</button>
+        </div>
+        <div class="panel-body">
+          <ul class="nav nav-tabs" role="tablist">
+            <li class="active"><a href="#summaryTab" role="tab" data-toggle="tab">Summary</a></li>
+            <li><a href="#uploadTab" role="tab" data-toggle="tab">Upload</a></li>
+            <li><a href="#nullTab" role="tab" data-toggle="tab">Null</a></li>
+            <li><a href="#null2Tab" role="tab" data-toggle="tab">Null2</a></li>
+          </ul>
+          <div class="bg padding-10">
+            <div class="tab-content padding-10">
+              <div class="tab-pane fade in active center" id="summaryTab">
+                <ul class="list-group">
+                    <li class="list-group-item" ng-hide="main.list.length">
+                      업로드된 파일이 없습니다. Upload 탭에서 업로드를 해주세요.
+                    </li>
+                      <li class="list-group-item" ng-repeat="item in main.list">
+                        <img alt="Test Box" width=100px ng-src="{{ item.uri }}" />
+                        {{ item.title }} [{{ item.audio_count }} /
+                        {{ item.poster_count }}]
+                        <div ng-hide="item.allow">
+                          <br>
+                          <span class="memo" ng-hide="item.memo">관리자 승인 대기중입니다.</span>
+                          <span class="memo" ng-show="item.memo">{{ item.memo }}</span>
+                        </div>
+                        <div class="pull-right action-buttons">
+                          <span class="label label-default">{{ item.location }}</span>
+                          <div ng-show="item.allow">
+                          <a href="./files/down/audio/{{ item.audio_id }}"><span class="glyphicon glyphicon-pencil"></span></a>
+                          <a href="./files/down/poster/{{ item.poster_id }}" class="flag"><span class="glyphicon glyphicon-flag"></span></a>
+                          </div>
+                          <a href="{{ './files/delete/' + item.list_id }}" class="trash"><span class="glyphicon glyphicon-trash"></span></a>
+                        </div>
+                      </li>
+                </ul>
+              </div>
+              <!-- <div class="tab-pane fade" id="uploadTab">
+                <form
+                  class="form-horizontal" role="form"
+                  id    =  "mp3UploadForm"
+                  enctype   =  "multipart/form-data"
+                  action  =  "/files/upload"
+                  method  =  "post">
+                  <div class="form-group">
+                    <label for="location" class="col-sm-2 control-label">지역 : </label>
+                    <div class="col-sm-2">
+                      <select class="form-control" name="location">
+                        <% locs.forEach(function(loc){ %>
+                        <option><%= loc %></option>
+                        <% }); %>
+                      </select>
+                    </div>
+                    <div class="col-sm-8">
+                      <input class="form-control" name="title" placeholder="광고 제목을 입력해주세요." type="text"
+                        required autofocus />
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <div class="col-sm-12">
+                      <input id="mp3_file" type="file" class="btn-warning width-50" name="ADmp3" title="Browse MP3" accept=".mp3" required />
+                      <span id="mp3_length" class="label label-default"></span>
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <div class="col-sm-12">
+                      <input type="file" class="btn-success width-50" name="ADimage" title="Browse JPG" accept=".jpg" required />
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <div class="col-sm-12">
+                      <button class="btn btn-lg btn-primary btn-block" type="submit">Upload Mp3</button>
+                    </div>
+                  </div>
+                </form>
+              </div> -->
+              <div class="tab-pane fade" id="nullTab">
+                <div>
+                  NULL
+                </div>
+              </div>
+              <div class="tab-pane fade" id="null2Tab">
+                <div>
+                  NULL
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+  </div>
+</div>
+<audio id="audio" style="display:none;"></audio>
+<script>
+// VBR? 에 대해선 지원 안하는 듯함.
+// $(document).ready(function(){
+//   var objectUrl;
+//
+//   $("#audio").on("canplaythrough", function(e){
+//     var seconds = e.currentTarget.duration;
+//     var time = "" + seconds;
+//     console.log(seconds + " + " + time);
+//     $("#mp3_length").text(time);
+//
+//     URL.revokeObjectURL(objectUrl);
+//   });
+//
+//   $("#mp3_file").change(function(e){
+//     var file = e.currentTarget.files[0];
+//     console.log(file);
+//     objectUrl = URL.createObjectURL(file);
+//     $("#audio").prop("src", objectUrl);
+//   });
+// });
+
+$(document).ready(function () {
+  $('input[type=file]').bootstrapFileInput();
+})
+</script>

@@ -1,0 +1,17 @@
+<div class="form-signup well well-sm">
+    <form name="signUpForm" method="post" class="form" role="form" ng-submit="signup.submit()" novalidate>
+      <legend><i class="glyphicon glyphicon-globe"></i> Sign up!</legend>
+      <input class="form-control" name="username" placeholder="User Name" type="text"     ng-model="signup.user.username" ng-minlength="2" ng-maxlength="20" required autofocus />
+      <input class="form-control" name="mail" placeholder="Your Email" type="email" ng-model="signup.user.mail" required />
+      <input class="form-control" name="pw" placeholder="New Password" type="password" ng-model="signup.user.pw" ng-minlength="4" ng-maxlength="20" required />
+      <p ng-show="signUpForm.username.$error.minlength" class="help-block">Username is too short.</p>
+      <p ng-show="signUpForm.username.$error.maxlength" class="help-block">Username is too long.</p>
+      <p ng-show="signUpForm.mail.$invalid && !signUpForm.mail.$pristine" class="help-block">Enter a valid email.</p>
+      <p ng-show="signUpForm.pw.$error.minlength" class="help-block">Password is too short.</p>
+      <p ng-show="signUpForm.pw.$error.maxlength" class="help-block">Password is too long.</p>
+      <p ng-show="signup.res_error" class="help-block">{{signup.res_error}}</p>
+      <br />
+      <button class="btn btn-lg btn-primary btn-block" type="submit" ng-disabled="signUpForm.$invalid || signup.submitLbl != '회원가입'">
+          {{signup.submitLbl}}</button>
+    </form>
+</div>

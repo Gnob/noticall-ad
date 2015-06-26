@@ -1,80 +1,82 @@
 var express = require('express');
+var path = require('path');
+var query = require('./query');
 var router = express.Router();
 
-/* GET home page. */
-router.get('/', function(req, res, next) {
-    //res.render('index', { title: 'Express' });
-    var isSignedIn = req.mySession.isSignedIn;
 
-    if (isSignedIn) {
-        res.redirect("/main");
+function checkSignIn(req, res, next) {
+    console.log(req.mySession);
+    if (req.mySession.isSignedIn) {
+        if(req.mySession.isSuper) {
+            res.redirect('/manager');
+        }
+        else {
+            return next();
+        }
+    }
+
+    res.redirect('/signin');
+}
+
+function checkNotSignIn(req, res, next) {
+    console.log('middleware');
+    if (!req.mySession.isSignedIn) {
+        return next();
+    }
+
+    if(req.mySession.isSuper) {
+        res.redirect('/manager');
     }
     else {
-        res.redirect("/signin");
+        res.redirect('/main');
     }
-    //res.sendfile("index.html");
+}
+
+
+router.get('/', checkSignIn, function(req, res, next) {
+    res.redirect("/main");
 });
 
-/* GET signin page. */
-router.get('/signin', function(req, res, next) {
+
+router.get('/router', function(req, res, next) {
+    res.sendFile(path.join(__dirname, '../public/templates/', 'router.html'));
+});
+
+
+router.get('/signin', checkNotSignIn, function(req, res, next) {
     console.log("/signin :: " + JSON.stringify(req.mySession));
-    var isSignedIn = req.mySession.isSignedIn;
     var isSignedUp = req.mySession.isSignedUp;
 
-    //res.render('index', { title: 'Express' });
-    if (isSignedIn) {
-        res.redirect("/main");
-    }
-    else {
-        if (isSignedUp){
-            req.mySession.destroy();
-        }
-
-        res.render("signin", { isSignedUp: isSignedUp });
+    if (isSignedUp){
+        req.mySession.destroy();
     }
 
+    res.render("signin", { isSignedUp: isSignedUp });
 });
 
-/* GET signup page. */
-router.get('/signup', function(req, res, next) {
-    //res.render('index', { title: 'Express' });
-    var isSignedIn = req.mySession.isSignedIn;
 
-    if (isSignedIn) {
-        res.redirect("/main");
-    }
-    else {
-        res.render("signup");
-    }
+router.get('/signup', checkNotSignIn, function(req, res, next) {
+    res.render("signup");
 });
 
 
 /* GET main page. */
-router.get('/main', function(req, res, next) {
+router.get('/main', checkSignIn, function(req, res, next) {
     //res.render('index', { title: 'Express' });
-    var isSignedIn = req.mySession.isSignedIn;
+    var locs = ["서울", "경기", "강원", "충북", "충남", "전북", "전남", "경북", "경남", "제주"];
 
-    if (!isSignedIn) {
-        res.redirect("/signin");
-    }
-    else {
-        res.render("main");
-    }
+    var pool = req.app.locals.pool;
+
+    query.requestList(pool, 'user_id', req.mySession.user_id, function (err, output) {
+        if (err) {
+            console.log("ERORR!! requestList");
+            throw err;
+        }
+
+        console.log('successful finish list.');
+        res.render('main', { username : req.mySession.username, locs: locs, list: output });
+    });
 });
 
-function loadUser(req, res, next) {
-    if (req.mySession.isSignedIn) {
-        User.findById(req.session.user_id, function(user) {
-            if (user) {
-                req.currentUser = user;
-                next();
-            } else {
-                res.redirect('/sessions/new');
-            }
-        });
-    } else {
-        res.redirect('/sessions/new');
-    }
-}
 
 module.exports = router;

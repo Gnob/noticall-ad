@@ -6,20 +6,25 @@ var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var sessions = require('client-sessions');
+
 var routes = require('./routes/index');
 var users = require('./routes/users');
 var files = require('./routes/files');
+var manager = require('./routes/manager');
+var client = require('./routes/client');
 var test = require('./routes/test');
 
 var app = express();
+
+app.locals.pk = "notIcallAD";
 
 app.locals.mysql_escape = mysql.escape;
 
 app.locals.pool = mysql.createPool({
     host: 'localhost',
     port: 3306,
-    user: 'root',
-    password: 'tkdqhd1!',
+    user: 'noticall',
+    password: 'noticall4',
     database: 'noticall_ad',
     connectionLimit: 20,
     waitForConnections: true
@@ -45,6 +50,8 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/', routes);
 app.use('/users', users);
 app.use('/files', files);
+app.use('/manager', manager);
+app.use('/client', client);
 app.use('/test', test);
 
 // catch 404 and forward to error handler

@@ -1,0 +1,22 @@
+<li class="list-group-item">
+    <img alt="Test Box" width=100px src="<%= item.uri.replace(/\\/g, '/').replace('public/', './'); %>" />
+    <%= item.title %> [<%= item.audio_count %> /
+    <%= item.poster_count %>]
+    <% if (item.allow == 0) { %>
+        <br>
+        <% if (!item.memo) { %>
+        <span class="memo">관리자 승인 대기중입니다.</span>
+        <% } %>
+        <% if (item.memo) { %>
+        <span class="memo"><%= item.memo %></span>
+        <% } %>
+    <% } %>
+    <div class="pull-right action-buttons">
+        <span class="label label-default"><%= item.location %></span>
+        <a href="./files/down/audio/<%= item.audio_id %>"><span class="glyphicon glyphicon-pencil"></span></a>
+        <a href="./manager/allow/<%= item.item_id %>/o" class="ok"><span class="glyphicon glyphicon-ok-circle"></span></a>
+        <a href="./manager/allow/<%= item.item_id %>/x" class="ban"><span class="glyphicon glyphicon-ban-circle"></span></a>
+        <a href="./files/down/poster/<%= item.poster_id %>" class="flag"><span class="glyphicon glyphicon-flag"></span></a>
+        <a href="<%= './files/delete/' + item.list_id %>" class="trash"><span class="glyphicon glyphicon-trash"></span></a>
+    </div>
+</li>

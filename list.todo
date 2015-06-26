@@ -1,11 +1,19 @@
 <광고주 in Web>
-[FININSH] TODO: 로그인 여부에 따라 router 설정
-TODO: 회원가입 모듈 만들기 (광고)
-TODO: My-SQL DB 만들기
-    - 관계 설정 해보기
-TODO: File Managing System 만들기
-    - ComboBox 만들기
-    - 지역 단위로만..
+[FINISH] TODO: 로그인 여부에 따라 router 설정
+[FINISH] TODO: 회원가입 모듈 만들기 (광고)
+[FINISH] TODO: My-SQL DB 만들기
+             - 관계 설정 해보기
+[FINISH] TODO: File Managing System 만들기
+             - ComboBox 만들기
+             - 지역 단위로만..
+[FINISH] TODO: item 리스트 뽑아주기
+TODO: Error 매끄럽게 처리하기
+[FINISH] TODO: 전부 REST API 방식으로 바꿀지 정하기
+TODO: File Serving REST API 만들기 (파일 목록 뽑아주기)
+TODO: 보안 강화하기 - Base64 버려?
+TODO: 쿼리마다 에러 처리
+TODO: 안드로이드 mail validator 달기
+TODO: 쿼리 전에 Validation 진행하기
 
 <광고주 in Android>
 TODO: AD Manager 만들기

@@ -8,3 +8,16 @@ body {
 .legend-margin { margin-bottom: 5px; }
 .list-group-item:hover, a.list-group-item:focus {text-decoration: none;background-color: rgb(245, 245, 245);}
 .list-group { margin-bottom:0px; }
+.width-50 { width: 50%; }
+.tab-pane { margin-top: 10px; }
+.inline-block { display: inline-block; }
+.drop-box {
+    background: #F8F8F8;
+    border: 5px dashed #DDD;
+    width: 200px;
+    height: 65px;
+    text-align: center;
+    padding-top: 25px;
+    margin: 10px;
+}
+.center { margin-left: auto; margin-right: auto; }

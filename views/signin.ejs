@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" ng-app="noticallAD">
   <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -25,21 +25,20 @@
   </head>
 
   <body>
-
-    <div class="container">
+    <div class="container" ng-controller="SignInCtrl as signin">
         <div class="form-signin well well-sm">
-          <form id="signinForm" class="form" role="form" action="users/signin" method="post" enctype="application/json">
+          <form name="signInForm" class="form" role="form" ng-submit="signin.submit()" novalidate>
             <legend><i class="glyphicon glyphicon-globe"></i> Noticall AD Server</legend>
             <label for="mail" class="sr-only">Email address</label>
-            <input type="email" id="mail" name="mail" class="form-control" placeholder="Email address" required autofocus>
+            <input type="email" name="mail" class="form-control" placeholder="Email address" ng-model="signin.user.mail" required autofocus>
+            <p ng-show="signInForm.mail.$invalid && !signInForm.mail.$pristine" class="help-block">Enter a valid email.</p>
             <label for="pw" class="sr-only">Password</label>
-            <input type="password" id="pw" name="pw" class="form-control" placeholder="Password" required>
-            <div class="checkbox">
-              <label>
-                <input type="checkbox" value="remember-me"> Remember me
-              </label>
-            </div>
-            <button id="signinBtn" class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
+            <input type="password" name="pw" class="form-control" placeholder="Password" ng-model="signin.user.pw" ng-minlength="4" ng-maxlength="40" required>
+            <p ng-show="signInForm.pw.$error.minlength" class="help-block">Password is too short.</p>
+            <p ng-show="signInForm.pw.$error.maxlength" class="help-block">Password is too long.</p>
+
+            <button id="signupBtn" class="btn btn-lg btn-warning" onclick="location.href='./signup';">회원가입</button>
+            <button class="btn btn-lg btn-primary pull-right" type="submit" ng-disabled="signInForm.$invalid || signin.submitLbl != '로그인'">{{signin.submitLbl}}</button>
           </form>
         </div>
         <% if (isSignedUp) { %>
@@ -47,12 +46,16 @@
         <% } %>
     </div> <!-- /container -->
   </body>
-  <script type="text/javascript" src="javascripts/jquery-1.11.1.js"></script>
-  <script type="text/javascript" src="javascripts/base64v1_0.js"></script>
-  <script type="text/javascript" src="javascripts/adserver.js"></script>
-<!--  <script>
-      $(document).ready(function(){
-          $("#signinBtn").on("click", doSignIn);
-      });
-  </script> -->
+  <script src="javascripts/lib/angular/angular.min.js"></script>
+  <script src="javascripts/lib/angular-route/angular-route.min.js"></script>
+  <script src="javascripts/app/app.js"></script>
+  <script src="javascripts/app/controller/SignInCtrl.js"></script>
+  <!-- // <script type="text/javascript" src="javascripts/adserver.js"></script>
+  // <script>
+  //     $(document).ready(function(){
+  //         $("#signupBtn").on("click", function (e) {
+  //             location.href='./signup';
+  //         });
+  //     });
+  // </script> -->
 </html>

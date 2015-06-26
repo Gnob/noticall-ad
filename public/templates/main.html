@@ -1,0 +1,106 @@
+
+<div class="row">
+  <div class="col-xs-12 col-sm-12 col-md-offset-2 col-md-8">
+      <div class="panel panel-success">
+        <div class="panel-heading">
+          <div class="width-50 inline-block">
+            <legend class="legend-margin"><i class="glyphicon glyphicon-globe"></i> Noticall AD Server</legend>
+          </div>
+          <span class="margin-left-50">{{ main.userInfo.username }}님 환영합니다. </span>
+          <button class="btn btn-danger pull-right" ng-click="main.signout()"><span class="glyphicon glyphicon-user"></span> Sign out</button>
+        </div>
+        <div class="panel-body">
+            <tabset>
+              <tab heading="목록" active='main.listTab'>
+                  <ul class="list-group">
+                      <li class="list-group-item" ng-hide="main.list.length">
+                        <h3 class="list-group-item-heading">업로드된 파일이 없습니다. Upload 탭에서 업로드를 해주세요.</h3>
+                      </li>
+                        <li class="list-group-item" ng-repeat="item in main.showingItems">
+
+                                <div class="row">
+                            <div class="col-sm-2">
+                          <img alt="Test Box" width=100px ng-src="{{ item.uri }}" />
+                            </div>
+                            <div class="col-sm-7">
+                          <h3 class="list-group-item-heading">{{ item.title }}</h4>
+                          <p class="list-group-item-text">광고를 들은 횟수 : {{ item.audio_count }} | 포스터를 본 횟수 : {{ item.poster_count }}</p>
+                          <div ng-hide="item.allow">
+                            <p class="list-group-item-text">
+                            <span class="memo" ng-hide="item.memo">관리자 승인 대기중입니다.</span>
+                            <span class="memo" ng-show="item.memo">{{ item.memo }}</span>
+                            </p>
+                          </div>
+                        </div>
+                        <div class="col-sm-3">
+                          <div class="pull-right action-buttons">
+                            <span class="label label-default">{{ item.location }}</span>
+                            <a href="{{main.baseUrl}}/files/down/audio/{{ item.audio_id }}" target="_self" ng-show="item.allow"><span class="glyphicon glyphicon-pencil"></span></a>
+                            <a href="{{main.baseUrl}}/files/down/poster/{{ item.poster_id }}" class="flag" target="_self" ng-show="item.allow"><span class="glyphicon glyphicon-flag"></span></a>
+                            <a ng-click="main.delete(item.list_id)" class="trash"><span class="glyphicon glyphicon-trash"></span></a>
+                          </div>
+                      </div>
+                  </div>
+                        </li>
+                        <pagination class="center" total-items="main.list.length" ng-model="main.curPage" ng-change='main.changePage()' max-size="5" items-per-page="main.numPerPage" boundary-links="true" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-show="main.list.length"></pagination>
+                  </ul>
+              </tab>
+              <tab heading="업로드">
+                  <form
+                    name="uploadForm"
+                    class="form-horizontal" role="form"
+                    novalidate>
+                    <div class="form-group">
+                      <label for="location" class="col-sm-2 control-label">지역 : </label>
+                      <div class="col-sm-2">
+                        <select class="form-control" name="location" ng-model="main.item.location" ng-options="opt for opt in main.locs">
+                        </select>
+                      </div>
+                      <div class="col-sm-8">
+                        <input class="form-control" name="title" placeholder="광고 제목을 입력해주세요." ng-model="main.item.title" type="text"
+                          required autofocus />
+                      </div>
+                    </div>
+                    <div class="form-group">
+                      <div class="col-sm-6">
+                        <!-- <input id="mp3_file" type="file" class="width-50" name="ADmp3" title="Browse MP3" accept=".mp3" tooltip="MP3 파일을 선택해주세요." required />
+                        <span id="mp3_length" class="label label-default"></span> -->
+                        MP3 파일을 선택해주세요 : <input type='file' name='ADmp3' ngf-select ng-model="main.ADmp3.files" ngf-change='main.ADmp3.change(main.ADmp3.files)'
+                        ng-model-rejected="main.rejFiles" ngf-accept="'audio/mp3'" accept="audio/mp3" ngf-max-size='main.maxSize' ngf-keep="keep" ngf-keep-distinct="keepDistinct" required>
+                        <!-- <progressbar value="main.ADmp3.amount" type='main.ADmp3.status' ng-show='main.ADmp3.amount'><span style="color:black; white-space:nowrap;">{{main.ADmp3.amount}} / 100</span></progressbar> -->
+                      </div>
+                      <div class="col-sm-6">
+                          <audio controls="" ngf-src="main.ADmp3.files[0]" ng-show="main.ADmp3.files[0].type.indexOf('audio') > -1" ngf-accept="'audio/mp3'"></audio>
+                      </div>
+                    </div>
+                    <div class="form-group">
+                      <div class="col-sm-6">
+                        <!-- <input type="file" class="width-50" name="ADimage" title="Browse JPG" accept=".jpg" tooltip="JPG 파일을 선택해주세요." required /> -->
+                        JPG 파일을 선택해주세요 : <input type='file' name='ADjpg' ngf-select ng-model="main.ADjpg.files" ngf-change='main.ADjpg.change(main.ADjpg.files)'
+                        ng-model-rejected="main.rejFiles" ngf-accept="'.jpg'" accept=".jpg" ngf-max-size='main.maxSize' ngf-keep="keep" ngf-keep-distinct="keepDistinct" required>
+                      </div>
+
+                      <div class="col-sm-6">
+                        <img ngf-src="main.ADjpg.files[0]" ng-show="main.ADjpg.files[0].type.indexOf('image') > -1" ngf-accept="'.jpg'" width=200px>
+                      </div>
+                    </div>
+                    <div class="form-group">
+                      <div class="col-sm-12">
+                          <progressbar value="main.progress.amount" type='main.progress.status' ng-show='main.progress.amount'><span style="color:black; white-space:nowrap;">{{main.progress.amount}} / 100</span></progressbar>
+                        <alert type="danger" close="main.closeAlert(1)" ng-show='main.rejFiles.length'>파일이 양식에 맞지 않습니다.</alert>
+                        <alert type="danger" close="main.closeAlert(2)" ng-show='main.failAlert.active'>업로드에 실패했습니다!<br>{{vm.failAlert.msg}}</alert>
+                        <button class="btn btn-lg btn-success btn-block" ng-click='main.upload([main.ADmp3, main.ADjpg])' ng-disabled="uploadForm.$invalid || main.submitLbl != '업로드하기'">{{ main.submitLbl }}</button>
+                      </div>
+                    </div>
+                  </form>
+              </tab>
+            </tabset>
+          <!-- <div class="bg padding-10">
+            <div class="tab-content padding-10">
+            </div>
+          </div> -->
+        </div>
+      </div>
+  </div>
+</div>
+<audio id="audio" style="display:none;"></audio>
