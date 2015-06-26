@@ -4,7 +4,7 @@ var router = express.Router();
 
 
 function checkSignIn(req, res, next) {
-    console.log('middleware');
+    console.log('middleware in users for checkSignIn');
     if (req.mySession.isSignedIn) {
         return next();
     }
@@ -13,12 +13,12 @@ function checkSignIn(req, res, next) {
 }
 
 function checkNotSignIn(req, res, next) {
-    console.log('middleware');
+    console.log('middleware in users for checkNotSignIn');
     if (!req.mySession.isSignedIn) {
         return next();
     }
 
-    res.redirect('/main');
+    res.status(403).json({msg:'이미 로그인된 회원입니다.', path:'/main'});
 }
 
 

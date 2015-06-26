@@ -31,7 +31,12 @@
                     .then(function (data) {
                         console.log('login success routine');
                         console.log(data);
-                        $location.path('/main');
+                        if (data.isSuper) {
+                            $location.path('/manager');
+                        }
+                        else {
+                            $location.path('/main');
+                        }
                     })
                     .catch(function () {
                         console.log('Sign in canceled');
@@ -51,7 +56,19 @@
 
         auth.getUserInfo(user)
         .then(function (userInfo) {
-            $location.path('/main');
+            if (userInfo.isSuper) {
+                console.log('He is manager');
+                $location.path('/manager');
+            }
+            else {
+                console.log('He is a user');
+                $location.path('/main');
+            }
+        })
+        .catch(function(err) {
+            console.log('getUserInfo Error');
+            console.log(err);
+            auth.signOut();
         });
     }
 }) ();

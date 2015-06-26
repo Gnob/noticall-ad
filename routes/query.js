@@ -246,7 +246,7 @@ function insertItem(tag, mp3_file, jpg_file, req, res) {
 }
 
 
-function deleteItem(tag, req, res) {
+function deleteItem(tag, req, res, cb) {
     var pool = req.app.locals.pool;
     var mysql_escape = req.app.locals.mysql_escape;
     var con;
@@ -320,11 +320,11 @@ function deleteItem(tag, req, res) {
         if (err) {
             con.release();
             console.error(err);
-            throw err;
+            if(cb) { cb(err); }
+            else { throw err; }
         }
 
-        console.log(tag + ' Delete ad_item finish, redirect /main');
-        res.redirect('/main');
+        cb && cb(null);
     });
 }
 
@@ -364,7 +364,7 @@ function deleteFile(tag, uri, cb) {
 }
 
 
-function allowItem(pool, id, mod, cb) {
+function allowItem(pool, id, cb) {
     var TAG = '[allowItem]';
     var con;
 
@@ -385,7 +385,61 @@ function allowItem(pool, id, mod, cb) {
         function(callback) {
             console.log(TAG + " query to change allow parameter (UPDATE)");
 
-            con.query('UPDATE ad_item SET allow=' + mod + ' WHERE item_id=' + id,
+            con.query('UPDATE ad_item SET allow=TRUE WHERE item_id=' + id,
+            function(err, result) { callback(err, result); });
+        },
+        function(result, callback) {
+            if (result.affectedRows == 0) {
+                console.log(TAG + " Not valid item");
+
+                // generate Error
+                callback({name: 'NotExistItem', message: 'There is no item.'});
+            }
+            else {
+                con.commit(function(err) { callback(err); });
+            }
+        }
+    ],
+    function(err) {
+        if (err) {
+            console.log(TAG + " Occured ERROR!! So rollback.");
+
+            return con.rollback(function(err2) {
+                console.log(TAG + " Callback of rollback.");
+                con.release();
+
+                return cb(err2 || err);
+            });
+        }
+
+        console.log(TAG + ' Finish updating allow parameter');
+        cb(null);
+    });
+}
+
+
+function disallowItem(pool, id, memo, cb) {
+    var TAG = '[disallowItem]';
+    var con;
+
+    async.waterfall([
+        function(callback) {
+            console.log(TAG + " Start in waterfall");
+            console.log(TAG + " getConnection()");
+
+            pool.getConnection(function(err, connection) { callback(err, connection); });
+        },
+        function(connection, callback) {
+            console.log(TAG + " Begin Transaction");
+
+            con = connection;
+
+            con.beginTransaction(function(err) { callback(err); });
+        },
+        function(callback) {
+            console.log(TAG + " query to change allow parameter (UPDATE)");
+
+            con.query('UPDATE ad_item SET memo="' + memo + '", allow=FALSE WHERE item_id=' + id,
             function(err, result) { callback(err, result); });
         },
         function(result, callback) {
@@ -470,10 +524,110 @@ function giveSuper(pool, username, mod, cb) {
 }
 
 
+function addCount(pool, table, count, id, cb) {
+    var TAG = '[addCount]';
+    var con;
+
+    async.waterfall([
+        function(callback) {
+            console.log(TAG + " Start in waterfall");
+            console.log(TAG + " getConnection()");
+
+            pool.getConnection(function(err, connection) { callback(err, connection); });
+        },
+        function(connection, callback) {
+            console.log(TAG + " Begin Transaction");
+
+            con = connection;
+
+            con.beginTransaction(function(err) { callback(err); });
+        },
+        function(callback) {
+            console.log(TAG + " query to add count parameter (UPDATE)");
+
+            con.query('UPDATE ' + table + ' SET down_count = down_count + ' + count + ' WHERE file_id=' + id,
+            function(err, result) { callback(err, result); });
+        },
+        function(result, callback) {
+            if (result.affectedRows == 0) {
+                console.log(TAG + " Not valid item");
+
+                callback({name: 'NotExistItem', message: 'There is no item.'});
+            }
+            else {
+                con.commit(function(err) { callback(err); });
+            }
+        }
+    ],
+    function(err) {
+        if (err) {
+            console.log(TAG + " Occured ERROR!! So rollback.");
+
+            return con.rollback(function(err2) {
+                console.log(TAG + " Callback of rollback.");
+                con.release();
+
+                return cb(err2 || err);
+            });
+        }
+
+        console.log(TAG + ' Finish updating count');
+        cb(null);
+    });
+}
+
+
+function findMail(pool, mysql_escape, table, mail, cb) {
+    var TAG = '[findMail]';
+
+    var con;
+
+    async.waterfall([
+        function(callback) {
+            console.log(TAG + " Start in waterfall");
+            console.log(TAG + " getConnection()");
+
+            pool.getConnection(callback);
+        },
+        function(connection, callback) {
+            console.log(TAG + " query to check mail (SELECT)");
+
+            con = connection;
+
+            con.query('SELECT * FROM ' + table + ' WHERE mail='
+                    + mysql_escape(mail), callback);
+        }
+    ],
+    function(err, rows, result) {
+        con.release();
+
+        if (err) {
+            console.log(TAG + ' Failed find...');
+            console.error(err);
+            cb(err);
+        }
+
+        if (rows.length > 0) {
+            console.log(TAG + ' Success find : ' + rows[0]);
+
+            cb(null, rows[0]);
+        }
+        else {
+            console.log(TAG + ' There is no user.');
+
+            cb({name: 'NotExistUser', message: 'There is no user.'});
+        }
+    });
+}
+
+
 module.exports.requestList = requestList;
 module.exports.requestFile = requestFile;
 module.exports.insertItem = insertItem;
 module.exports.deleteItem = deleteItem;
 module.exports.deleteFile = deleteFile;
 module.exports.allowItem = allowItem;
+module.exports.disallowItem = disallowItem;
 module.exports.giveSuper = giveSuper;
+module.exports.addCount = addCount;
+module.exports.findMail = findMail;

@@ -180,38 +180,42 @@ router.get('/select', function(req, res, next) {
         connection.query('SELECT * FROM advertiser', function(err, rows){
             output.push("====advertiser====");
             output.push(rows);
-            connection.query('SELECT * FROM audio_files', function(err, rows){
-                output.push("====audio_files====");
+            connection.query('SELECT * FROM consumer', function(err, rows){
+                output.push("====consumer====");
                 output.push(rows);
-                connection.query('SELECT * FROM poster_files', function(err, rows){
-                    output.push("====poster_files====");
+                connection.query('SELECT * FROM audio_files', function(err, rows){
+                    output.push("====audio_files====");
                     output.push(rows);
-                    connection.query('SELECT * FROM file_list', function(err, rows){
-                        output.push("====file_list====");
+                    connection.query('SELECT * FROM poster_files', function(err, rows){
+                        output.push("====poster_files====");
                         output.push(rows);
-                        connection.query('SELECT * FROM ad_item', function(err, rows){
-                            output.push("====ad_item====");
+                        connection.query('SELECT * FROM file_list', function(err, rows){
+                            output.push("====file_list====");
                             output.push(rows);
+                            connection.query('SELECT * FROM ad_item', function(err, rows){
+                                output.push("====ad_item====");
+                                output.push(rows);
 
-                            connection.release();
+                                connection.release();
 
-                            var i, j;
-                            var outstring = "";
+                                var i, j;
+                                var outstring = "";
 
-                            for (i=0;i<output.length;i++) {
-                                if (typeof output[i] === 'object') {
-                                    for (j=0;j<output[i].length;j++) {
-                                        outstring += JSON.stringify(output[i][j]);
+                                for (i=0;i<output.length;i++) {
+                                    if (typeof output[i] === 'object') {
+                                        for (j=0;j<output[i].length;j++) {
+                                            outstring += JSON.stringify(output[i][j]);
+                                            outstring += "<br>";
+                                        }
+                                    }
+                                    else {
+                                        outstring += output[i];
                                         outstring += "<br>";
                                     }
                                 }
-                                else {
-                                    outstring += output[i];
-                                    outstring += "<br>";
-                                }
-                            }
 
-                            res.send(outstring);
+                                res.send(outstring);
+                            });
                         });
                     });
                 });

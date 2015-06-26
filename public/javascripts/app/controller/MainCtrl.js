@@ -9,25 +9,58 @@
 
     app.controller('MainCtrl', MainCtrl);
 
-    MainCtrl.$inject=['$scope','$location','$q','$http','Upload','auth','baseUrl'];
+    MainCtrl.$inject=['$scope','$location', '$window','$q','$http','Upload','auth','itemCom','baseUrl'];
 
-    function MainCtrl($scope, $location, $q, $http, Upload, auth, baseUrl) {
+    function MainCtrl($scope, $location, $window, $q, $http, Upload, auth, itemCom, baseUrl) {
         var vm = this;
 
         // TODO: /upload Response 제대로
 
         // TODO: 지역 Ajax로 받아오기
+        vm.baseUrl = baseUrl;
         vm.locs = ["서울", "경기", "강원", "충북", "충남", "전북", "전남", "경북", "경남", "제주"];
         vm.maxSize = 1024 * 1024 * 5;
         vm.submitLbl = "업로드하기";
 
+        vm.listTab = true;
+        vm.curPage = 1;
+        vm.numPerPage = 5;
+        vm.showingItems = [];
+
+
+        fillList();
+
+
+        vm.changePage = function() {
+            var begin = (vm.curPage - 1) * vm.numPerPage;
+            var end = begin + vm.numPerPage;
+
+            vm.showingItems = vm.list.slice(begin, end);
+            // while(vm.showingItems.length) { vm.showingItems.pop(); }
+            //
+            // var temp = vm.list.slice(begin, end);
+            //
+            // while(temp.length) { vm.showingItems.push(temp.pop()) }
+        }
+
+
+        vm.resetUploadForm = function() {
+            vm.progress.amount = 0;
+            vm.progress.status = 'danger';
+            vm.item.title = '';
+            vm.item.location = '서울';
+            vm.ADmp3.files = undefined;
+            vm.ADjpg.files = undefined;
+            vm.rejFiles = [];
+            vm.failAlert.active = false;
+            vm.failAlert.msg = '';
+        };
+
         vm.ADmp3 = {
             name: 'ADmp3',
-            label: "MP3 파일을 선택해주세요.",
             change: function(files) {
                 if (files && files.length) {
                     vm.ADmp3.value = 0
-                    vm.ADmp3.label = files[0].name;
                 }
                 console.log(files);
             }
@@ -35,11 +68,9 @@
 
         vm.ADjpg = {
             name: 'ADjpg',
-            label: "JPG 파일을 선택해주세요.",
             change: function(files) {
                 if (files && files.length) {
                     vm.ADjpg.amount = 0
-                    vm.ADjpg.label = files[0].name;
                 }
                 console.log(files);
             }
@@ -50,8 +81,18 @@
             status: 'danger'
         };
 
-        vm.closeAlert = function() {
-            vm.rejFiles = [];
+        vm.failAlert = {
+            active: false,
+            msg: ''
+        }
+
+        vm.closeAlert = function(num) {
+            if (num == 1) {
+                vm.rejFiles = [];
+            }
+            else if (num == 2) {
+                vm.failAlert.active = false;
+            }
         }
 
         vm.item = {
@@ -74,129 +115,85 @@
 
         vm.uploading = {};
 
-        // vm.upload = function(objs) {
-        //     console.log(objs);
-        //     for(var i = 0; i < objs.length; i++) {
-        //         if (objs[i].files && objs[i].files.length) {
-        //             for(var i = 0; i < objs[i].files.length; i++) {
-        //                 var obj = objs[i];
-        //                 var file = obj.files[i];
-        //                 vm.uploading[obj.name] = Upload.upload({
-        //                     url: baseUrl + '/test/upload',
-        //                     file: file,
-        //                     fileFormDataName: obj.name,
-        //                     headers: { 'Authorization': vm.userInfo.token},
-        //                     fields: vm.item
-        //                 })
-        //                 .progress(function(e) {
-        //                     obj.status = 'warning';
-        //                     obj.value = parseInt(100.0 * e.loaded / e.total);
-        //                 })
-        //                 .success(function(data, status, headers, config) {
-        //                   // file is uploaded successfully
-        //                     obj.status = 'success';
-        //                 })
-        //                 .error(function(a,b,c,d) {
-        //                     console.log(a);
-        //                     console.log(b);
-        //                     console.log(c);
-        //                     console.log(d);
-        //                 });
-        //             }
-        //         }
-        //     }
-        // }
-
 
         vm.upload = function(objs) {
             console.log(objs);
-            var file = [objs[0].files[0], objs[1].files[0]];
-            Upload.upload({
-                url: baseUrl + '/files/upload',
-                file: file,
-                fileFormDataName: 'dataSet',
-                headers: { 'Authorization': vm.userInfo.token},
-                fields: vm.item
-            })
-            .progress(function(e) {
-                vm.progress.status = 'warning';
-                vm.progress.amount = parseInt(100.0 * e.loaded / e.total);
-            })
-            .success(function(data, status, headers, config) {
-                vm.progress.status = 'success';
-            })
-            .error(function(a,b,c,d) {
-                console.log(a);
-                console.log(b);
-                console.log(c);
-                console.log(d);
+            if (objs[0].files && objs[0].files.length) {
+                var file = [objs[0].files[0], objs[1].files[0]];
+                Upload.upload({
+                    url: baseUrl + '/files/upload',
+                    file: file,
+                    fileFormDataName: 'dataSet',
+                    headers: { 'Authorization': vm.userInfo.token },
+                    fields: vm.item
+                })
+                .progress(function(e) {
+                    vm.progress.status = 'warning';
+                    vm.progress.amount = parseInt(100.0 * e.loaded / e.total);
+                })
+                .success(function(data, status, headers, config) {
+                    vm.progress.status = 'success';
+                    vm.listTab = true;
+                    vm.resetUploadForm();
+                    fillList();
+                    // $window.location.href = '/router';
+                })
+                .error(function(a,b,c,d) {
+                    vm.resetUploadForm();
+                    vm.failAlert.active = true;
+                    vm.failAlert.msg = a
+                    console.log(a);
+                    console.log(b);
+                    console.log(c);
+                    console.log(d);
+                });
+            }
+        }
+
+
+        vm.delete = function(id) {
+            itemCom.deleteItem(vm.userInfo.token, id)
+            .then(function(data) {
+                fillList();
             });
         }
 
 
-        auth.getUserInfo()
-        .then(function (userInfo) {
-            console.log(userInfo);
-            vm.userInfo.username = userInfo.username;
-            vm.userInfo.token = userInfo.token;
-            vm.userInfo.isSuper = userInfo.isSuper;
+        function fillList() {
+            auth.getUserInfo()
+            .then(function (userInfo) {
+                console.log(userInfo);
+                vm.userInfo.username = userInfo.username;
+                vm.userInfo.token = userInfo.token;
+                vm.userInfo.isSuper = userInfo.isSuper;
 
-            getList(userInfo.token)
-                .then(function (data) {
-                    console.log('success get list routine');
-                    console.log(data);
-                    vm.list = data;
-                })
-                .catch(function () {
-                    console.log('fail get list');
-                    auth.clearUserInfo();
-                    $location.path('/signin');
-                });
-        })
-        .catch(function () {
-            console.log('fail get userinfo');
-            auth.clearUserInfo();
-            $location.path('/signin');
-        });;
-
-
-        function getList(token) {
-            var reqConfig = {
-                method: 'GET',
-                url: baseUrl + '/files/list',
-                headers: {
-                    'Authorization': token
-                }
-            };
-
-
-            return $http(reqConfig)
-                .then(getListComplete)
-                .catch(getListFailed);
-
-            ///////////////////////////
-
-            function getListComplete(response) {
-                var data = response.data;
-
-                if (response.status == 200) {
-                    console.log("Success to get list from server");
-                }
-                else {
-                    console.log('Success to get list but unknown behavior.');
-                }
-                console.log(JSON.stringify(response));
-
-                return response.data;
-            }
-
-
-            function getListFailed(error) {
-                console.log('Fail to get list');
-                console.log(error);
-
-                return $q.reject();
-            }
+                itemCom.getList(userInfo.token)
+                    .then(function (data) {
+                        console.log('success get list routine');
+                        console.log(data);
+                        vm.list = data;
+                        vm.changePage();
+                    })
+                    .catch(function () {
+                        console.log('fail get list');
+                        auth.clearUserInfo();
+                        $location.path('/signin');
+                    });
+            })
+            .catch(function () {
+                console.log('fail get userinfo');
+                auth.signOut();
+                auth.clearUserInfo();
+                $location.path('/signin');
+            });;
         }
+        // function(id, index) {
+        //     var targetIdx = (vm.curPage - 1) * vm.numPerPage + index;
+        //
+        //     deleteItem(vm.userInfo.token)
+        //     .then(function() {
+        //         vm.list.
+        //     });
+        // }
     }
 }) ();

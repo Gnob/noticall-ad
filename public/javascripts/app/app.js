@@ -28,6 +28,11 @@
             controllerAs: 'main',
             templateUrl: 'templates/main.html'
   })
+  .when('/manager', {
+            controller:'ManagerCtrl',
+            controllerAs: 'manager',
+            templateUrl: 'templates/manager.html'
+  })
   .otherwise({ redirectTo: '/signin' });
   });
 

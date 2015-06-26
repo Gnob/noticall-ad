@@ -11,9 +11,12 @@ var routes = require('./routes/index');
 var users = require('./routes/users');
 var files = require('./routes/files');
 var manager = require('./routes/manager');
+var client = require('./routes/client');
 var test = require('./routes/test');
 
 var app = express();
+
+app.locals.pk = "notIcallAD";
 
 app.locals.mysql_escape = mysql.escape;
 
@@ -48,6 +51,7 @@ app.use('/', routes);
 app.use('/users', users);
 app.use('/files', files);
 app.use('/manager', manager);
+app.use('/client', client);
 app.use('/test', test);
 
 // catch 404 and forward to error handler

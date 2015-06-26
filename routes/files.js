@@ -7,7 +7,9 @@ var router = express.Router();
 
 router.use(function(req, res, next) {
     console.log('middleware in files');
-    if (req.mySession.token == req.get('Authorization')) {
+    console.log(req.path);
+    console.log(req.path.indexOf('/down'))
+    if (req.mySession.token == req.get('Authorization') || req.path.indexOf('down/')) {
 
         return next();
     }
@@ -67,7 +69,7 @@ router.use('/upload', function(req, res, next) {
                 console.log('successfully deleted');
             }); // delete the partially written file
 
-            res.redirect('/main');
+            res.status(403).json({msg: 'File size limit Error!!'});
         },
         onFilesLimit: function () {
             console.log('[onFilesLimit] Crossed file limit!');
@@ -146,6 +148,7 @@ router.post('/upload', function(req, res) {
 
 router.get('/down/:type/:id', function(req, res, next) {
     var TAG = '[/down]'
+    console.log(TAG + " enter the routine");
     var con;
 
     var pool = req.app.locals.pool;
@@ -184,7 +187,7 @@ router.get('/list', function(req, res, next) {
         console.log(TAG + ' Success finish list.')
         // res.render('main', output).end();
         res.json(output);
-    })
+    });
 });
 
 
@@ -193,10 +196,20 @@ router.get('/delete/:listId', function(req, res, next) {
     var TAG = '[/delete]'
 
     if(!req.params.listId) {
-        res.json({msg: 'Unavailable access'});
+        res.status(403).json({msg: 'Unavailable access'});
     }
     else {
-        query.deleteItem(TAG, req, res);
+        query.deleteItem(TAG, req, res, function(err) {
+            if (err) {
+                console.log(TAG + 'deleteItem error')
+
+                res.status(403).json({msg: err.message});
+                throw err;
+            }
+
+            console.log(TAG + ' Delete ad_item finish, redirect /main');
+            res.json({msg: '삭제에 성공했습니다.'});
+        });
     }
 });
 

@@ -57,3 +57,12 @@
     REFERENCES `file_list` (`list_id`)
     ON DELETE CASCADE ON UPDATE CASCADE
 ) engine=InnoDB DEFAULT charset=utf8;
+
+ create table consumer(
+	`user_id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+	`nickname` VARCHAR(20) NOT NULL,
+	`mail` VARCHAR(40) NOT NULL,
+	`pw` VARCHAR(20) NOT NULL,
+	`point` INT DEFAULT 0,
+    `memo` VARCHAR(100) NULL DEFAULT NULL
+) engine=InnoDB DEFAULT charset=utf8;
