@@ -29,17 +29,17 @@
                 vm.submitLbl = "요청중...";
 
                 return auth.signUp(vm.user)
-                    .then(function (path) {
-                        $location.path(path);
+                    .then(function (data) {
+                        $location.path('web/main');
                     })
-                    .catch(function () {
+                    .catch(function (err) {
                         console.log('Sign up canceled');
-
-                        vm.res_error = error.data.msg;
+                        console.log('err');
                         vm.submitLbl = '회원가입';
+                        vm.res_error = err.message;
                     })
                     .finally(function () {
-                        vm.submitLbl = vm.res_error ? "완료" : "회원가입";
+                        vm.submitLbl = "회원가입";
                     });
             }
             else {

@@ -79,7 +79,7 @@ function requestFile(pool, type, id, cb) {
     var con;
 
     if (!pool) {
-        return callback({}, new Error("Empty pool..."));
+        return cb(new Error("Empty pool..."), null);
     }
 
     async.waterfall([
@@ -99,8 +99,8 @@ function requestFile(pool, type, id, cb) {
         }
     ],
     function (err, rows) {
+        con.release();
         if (err) {
-            con.release();
             console.log(TAG + " Error occured...");
             console.error(err);
 
@@ -108,10 +108,9 @@ function requestFile(pool, type, id, cb) {
         }
 
         if (rows.length == 0) {
-            con.release();
             console.log(TAG + " Not exist file");
 
-            return cb(null, {});
+            return cb(null, null);
         }
         else {
             var output = rows[0];
@@ -123,7 +122,55 @@ function requestFile(pool, type, id, cb) {
 }
 
 
-function insertItem(tag, mp3_file, jpg_file, req, res) {
+// columm과 value는 WHERE 절을 의미. 비워두면 전체 검색
+function requestFilelist(pool, columm, value, cb) {
+    var TAG = "[requestFilelist]";
+    var con;
+
+    if (!pool) {
+        return cb(new Error("Empty pool..."), 0);
+    }
+
+    async.waterfall([
+        function(callback) {
+            console.log(TAG + " Start in waterfall");
+            console.log(TAG + " getConnection()");
+
+            pool.getConnection(callback);
+        },
+        function(connection, callback) {
+            console.log(TAG + " query to get ad_item #1 (SELECT with INNER JOIN)");
+
+            con = connection;
+
+            con.query('SELECT file_list.location AS loc, file_list.audio_id AS audio_id, file_list.poster_id AS poster_id, file_list.list_id From file_list ' +
+            'INNER JOIN ad_item ON file_list.list_id = ad_item.list_id WHERE ad_item.allow = TRUE ' +
+            (columm ? 'AND ' + columm + '=' + value : ''), callback);
+        }
+    ],
+    function(err, rows) {
+        con.release();
+
+        if (err) {
+            console.error(err);
+
+            return cb(err, rows);
+        }
+
+        if (rows.length == 0) {
+            console.log(TAG + " Empty List...");
+
+            return cb(new Error("EmptyList"), null);
+        }
+        else {
+            console.log(TAG + " Success Join");
+
+            return cb(null, rows);
+        }
+    });
+}
+
+function insertItem(tag, mp3_file, jpg_file, req, res, cb) {
     var audio_file = {
         'filename': mp3_file.originalname,
         'uri': mp3_file.path,
@@ -177,7 +224,7 @@ function insertItem(tag, mp3_file, jpg_file, req, res) {
                     deleteFile(tag, mp3_file.path);
                     deleteFile(tag, jpg_file.path);
 
-                    res.json({'msg': 'You are not valid user!'});
+                    cb && cb(err);
                 });
             }
             else {
@@ -222,25 +269,28 @@ function insertItem(tag, mp3_file, jpg_file, req, res) {
     ],
     function (err) {
         if (err) {
+            console.error(err);
             console.log(tag + " Occured ERROR!! So rollback.");
 
             con.rollback(function() {
                 console.log(tag + " Callback of rollback.");
                 con.release();
 
-                deleteFile(tag, mp3_file.path, function () {
-                    deleteFile(tag, jpg_file.path, function () {
-                        console.error(err);
-                        throw err;
+                deleteFile(tag, mp3_file.path, function (err1) {
+                    err1 && console.error(err1);
+                    deleteFile(tag, jpg_file.path, function (err2) {
+                        err2 && console.error(err2);
+
+                        cb && cb(err);
                     });
                 });
             });
         }
         else {
             con.release();
-            console.log(tag + ' Finish inserting AD item, redirect /main');
+            console.log(tag + ' Finish inserting AD item');
 
-            res.redirect('/main');
+            cb && cb(null);
         }
     });
 }
@@ -269,8 +319,7 @@ function deleteItem(tag, req, res, cb) {
         function(rows, result, callback) {
             if (rows.length == 0) {
                 console.log(tag + ' Not exist ad item');
-
-                return res.json({msg:'아이템이 존재하지 않습니다.'})
+                callback(new Error("NotExistADItem"));
             }
             else {
                 console.log(tag + " query to check audio file (SELECT)");
@@ -317,14 +366,15 @@ function deleteItem(tag, req, res, cb) {
         }
     ],
     function (err) {
+        con.release();
         if (err) {
-            con.release();
             console.error(err);
-            if(cb) { cb(err); }
-            else { throw err; }
+            cb && cb(err);
+        }
+        else {
+            cb && cb(null);
         }
 
-        cb && cb(null);
     });
 }
 
@@ -346,7 +396,7 @@ function deleteFile(tag, uri, cb) {
                 fs.unlink('./' + uri, callback);
             }
             else {
-                cb && cb();
+                cb && cb(null);
                 return;
             }
         }
@@ -354,12 +404,13 @@ function deleteFile(tag, uri, cb) {
     function(err) {
         if (err) {
             console.error(err);
-            throw err;
+            cb && cb(err);
         }
+        else {
+            cb && cb(null);
 
-        cb && cb();
-
-        console.log(tag + ' Deleted successfully');
+            console.log(tag + ' Deleted successfully');
+        }
     });
 }
 
@@ -412,6 +463,7 @@ function allowItem(pool, id, cb) {
             });
         }
 
+        con.release();
         console.log(TAG + ' Finish updating allow parameter');
         cb(null);
     });
@@ -437,7 +489,7 @@ function disallowItem(pool, id, memo, cb) {
             con.beginTransaction(function(err) { callback(err); });
         },
         function(callback) {
-            console.log(TAG + " query to change allow parameter (UPDATE)");
+            console.log(TAG + " query to change disallow parameter (UPDATE)");
 
             con.query('UPDATE ad_item SET memo="' + memo + '", allow=FALSE WHERE item_id=' + id,
             function(err, result) { callback(err, result); });
@@ -465,6 +517,7 @@ function disallowItem(pool, id, memo, cb) {
             });
         }
 
+        con.release();
         console.log(TAG + ' Finish updating allow parameter');
         cb(null);
     });
@@ -518,6 +571,7 @@ function giveSuper(pool, username, mod, cb) {
             });
         }
 
+        con.release();
         console.log(TAG + ' Finish updating super parameter');
         cb(null);
     });
@@ -571,10 +625,68 @@ function addCount(pool, table, count, id, cb) {
             });
         }
 
+        con.release();
         console.log(TAG + ' Finish updating count');
         cb(null);
     });
 }
+
+
+
+function addPoint(pool, table, point, user_id, cb) {
+    var TAG = '[addPoint]';
+    var con;
+
+    async.waterfall([
+        function(callback) {
+            console.log(TAG + " Start in waterfall");
+            console.log(TAG + " getConnection()");
+
+            pool.getConnection(function(err, connection) { callback(err, connection); });
+        },
+        function(connection, callback) {
+            console.log(TAG + " Begin Transaction");
+
+            con = connection;
+
+            con.beginTransaction(function(err) { callback(err); });
+        },
+        function(callback) {
+            console.log(TAG + " query to add count parameter (UPDATE)");
+
+            con.query('UPDATE ' + table + ' SET point = point + ' + point + ' WHERE user_id=' + user_id,
+            function(err, result) { callback(err, result); });
+        },
+        function(result, callback) {
+            if (result.affectedRows == 0) {
+                console.log(TAG + " Not valid user");
+
+                callback({name: 'NotExistUser', message: 'There is no user.'});
+            }
+            else {
+                con.commit(function(err) { callback(err, result); });
+            }
+        }
+    ],
+    function(err, result) {
+        if (err) {
+            console.log(TAG + " Occured ERROR!! So rollback.");
+
+            return con.rollback(function(err2) {
+                console.log(TAG + " Callback of rollback.");
+                con.release();
+
+                return cb(err2 || err);
+            });
+        }
+
+        con.release();
+        console.log(TAG + ' Finish updating point');
+        console.log(TAG, ' ', result);
+        cb(null);
+    });
+}
+
 
 
 function findMail(pool, mysql_escape, table, mail, cb) {
@@ -631,3 +743,5 @@ module.exports.disallowItem = disallowItem;
 module.exports.giveSuper = giveSuper;
 module.exports.addCount = addCount;
 module.exports.findMail = findMail;
+module.exports.requestFilelist = requestFilelist;
+module.exports.addPoint = addPoint;

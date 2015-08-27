@@ -18,8 +18,8 @@
 
         // TODO: 지역 Ajax로 받아오기
         vm.baseUrl = baseUrl;
-        vm.locs = ["서울", "경기", "강원", "충북", "충남", "전북", "전남", "경북", "경남", "제주"];
-        vm.maxSize = 1024 * 1024 * 5;
+        vm.locs = ["서울", "부산", "대구", "인천", "광주", "대전", "울산", "경기", "강원", "충북", "충남", "전북", "전남", "경북", "경남", "제주"];
+        vm.maxSize = 1024 * 1024 * 1;
         vm.submitLbl = "업로드하기";
 
         vm.listTab = true;
@@ -109,7 +109,7 @@
         vm.signout = function() {
             auth.signOut()
             .then(function () {
-                $location.path('/signin');
+                $location.path('web/signin');
             });
         }
 
@@ -132,16 +132,26 @@
                     vm.progress.amount = parseInt(100.0 * e.loaded / e.total);
                 })
                 .success(function(data, status, headers, config) {
-                    vm.progress.status = 'success';
-                    vm.listTab = true;
-                    vm.resetUploadForm();
-                    fillList();
+                    console.log(data);
+                    console.log(status);
+
+                    if (data.status == "200") {
+                        vm.progress.status = 'success';
+                        vm.listTab = true;
+                        vm.resetUploadForm();
+                        fillList();
+                    }
+                    else {
+                        vm.resetUploadForm();
+                        vm.failAlert.active = true;
+                        vm.failAlert.msg = data.message;
+                    }
                     // $window.location.href = '/router';
                 })
                 .error(function(a,b,c,d) {
                     vm.resetUploadForm();
                     vm.failAlert.active = true;
-                    vm.failAlert.msg = a
+                    vm.failAlert.msg = a;
                     console.log(a);
                     console.log(b);
                     console.log(c);
@@ -155,6 +165,11 @@
             itemCom.deleteItem(vm.userInfo.token, id)
             .then(function(data) {
                 fillList();
+            })
+            .catch(function(err) {
+                console.log(JSON.stringify(err));
+                console.log('삭제에 실패했습니다.');
+                return err;
             });
         }
 
@@ -171,20 +186,28 @@
                     .then(function (data) {
                         console.log('success get list routine');
                         console.log(data);
+                        angular.forEach(data, function(value, key) {
+                            if (value.allow) {
+                                value.style = {color: 'dodgerblue'};
+                            }
+                            else {
+                                value.style = {color: 'red'};
+                            }
+                        });
                         vm.list = data;
                         vm.changePage();
                     })
                     .catch(function () {
                         console.log('fail get list');
                         auth.clearUserInfo();
-                        $location.path('/signin');
+                        $location.path('web/signin');
                     });
             })
             .catch(function () {
                 console.log('fail get userinfo');
                 auth.signOut();
                 auth.clearUserInfo();
-                $location.path('/signin');
+                $location.path('web/signin');
             });;
         }
         // function(id, index) {

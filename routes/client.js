@@ -38,86 +38,112 @@ function decrypt(text, key){
 */
 
 function checkSignIn(req, res, next) {
-    console.log('middleware in manager for checkSignIn');
+    console.log('middleware in client for checkSignIn');
 
     var token = req.get('Authorization');
 
     if (token) {
-        var mail = decrypt(token, req.app.locals.pk);
+        try {
+            var mail = decrypt(token, req.app.locals.pk);
+        }
+        catch (e) {
+            console.info(e);
+            var resJson = {
+                status:"401",
+                message: "인증이 올바르지 않습니다."
+            };
+
+            console.info(resJson.message);
+            return res.json(resJson);
+        }
         var pool = req.app.locals.pool;
         var mysql_escape = req.app.locals.mysql_escape;
 
         query.findMail(pool, mysql_escape, 'consumer', mail, function (err, user) {
             if (err) {
-                return res.json({
+                var resJson = {
                     status:"401",
                     message: "아이디나 비밀번호를 확인해주세요."
-                });
+                };
+
+                console.info(resJson.message);
+                return res.json(resJson);
             }
 
             res.locals.consumer = user;
+
+            console.info("This user is signed in");
+            console.info(user);
 
             return next();
         });
     }
     else {
-        return res.json({
+        var resJson = {
             status:"401",
             message: "아이디나 비밀번호를 확인해주세요."
-        });
+        };
+
+        console.info(resJson.message);
+        return res.json(resJson);
     }
 }
 
 
-router.post('/test', function (req, res) {
-    // res.json({ token: req.get('Authorization'), username: decrypt(token, req.app.locals.pk) });
-
-    res.json({ token: "test" });
-});
-
-
-router.post('/point', checkSignIn, function (req, res) {
-    res.json({
-        status:"200",
-        message: "갱신에 성공했습니다.",
-        name: res.locals.consumer.name,
-        point: res.locals.consumer.point
-    });
-});
-
-
-router.post('/signin', function(req, res) {
-    console.log('init');
-    var TAG = '<CLIENT> [/signin]';
+function getUserFromHeader(req, res, next) {
+    console.log('middleware in client for getUserFromHeader');
 
     var req_data = req.get('Authorization');
 
     if (!req_data) {
-        res.json({
+        var resJson = {
             status: "400",
             message: "헤더가 비어있습니다."
-        });
+        };
+        console.info(resJson.message);
+        return res.json(resJson);
+
     }
+    else {
+        var data = new Buffer(req_data, 'base64').toString('utf-8').split(':');
+        var pw = "";
+        for (var i = 1; i < data.length; i++) {
+            pw += data[i]
+        }
+
+        res.locals.user = {
+            mail: data[0],
+            pw: pw
+        };
+
+        console.log(req_data);
+        console.log(data);
+        console.log(res.locals.user);
+
+        next();
+    }
+}
+
+
+router.post('/point', checkSignIn, function (req, res) {
+    var resJson = {
+        status:"200",
+        message: "갱신에 성공했습니다.",
+        name: res.locals.consumer.nickname,
+        point: res.locals.consumer.point
+    };
+    console.info(resJson.message);
+    res.json(resJson);
+});
+
+
+router.post('/signin', getUserFromHeader, function(req, res, next) {
+    console.log('init');
+    var TAG = '<CLIENT> [/signin]';
 
     var pool = req.app.locals.pool;
     var mysql_escape = req.app.locals.mysql_escape;
     var con;
-
-    console.log(req.body);
-    var data = new Buffer(req_data, 'base64').toString('utf-8').split(':');
-    var pw = data[1];
-    for (var i = 2; i < data.length; i++) {
-        pw += data[i]
-    }
-
-    var user = {
-        mail: data[0],
-        pw: pw
-    };
-
-    console.log(req_data);
-    console.log(data);
-    console.log(user);
 
     async.waterfall([
         function(callback) {
@@ -132,85 +158,66 @@ router.post('/signin', function(req, res) {
             con = connection;
 
             con.query('SELECT * FROM consumer where mail='
-                    + mysql_escape(user.mail)
-                    + ' and pw=' + mysql_escape(user.pw), callback);
+                    + mysql_escape(res.locals.user.mail)
+                    + ' and pw=' + mysql_escape(res.locals.user.pw), callback);
         }
     ],
     function (err, rows) {
         con.release();
 
+        var resJson;
+
         if (err) {
             console.error(err);
-            throw err;
+            resJson = {
+                status:"500",
+                message: "오류가 발생했습니다. 다시 시도 해주세요."
+            };
         }
         else if (rows.length == 0) {
             console.log(TAG + ' Not valid username or pw....');
             // TODO: 에러 페이지 구현 - [회원가입]이미 존재하는 이름...
-            res.json({
+            resJson = {
                 status:"401",
                 message: "아이디나 비밀번호를 확인해주세요."
-            });
+            };
         }
         else if (rows.length > 1) {
             console.error(TAG + ' Unknown error : 중복된 가입자 정보가 존재합니다.');
             // TODO: 에러 페이지 구현 - [회원가입]이미 존재하는 이름...
-            res.json({
+            resJson = {
                 status:"401",
                 message: "관리자에게 문의해주세요."
-            });
+            };
         }
         else {
             console.log(TAG + ' Success sign in, return token');
 
             var token = encrypt(rows[0].mail, req.app.locals.pk);
 
-            res.json({
+            resJson = {
                 status:"200",
                 message: "로그인에 성공했습니다.",
                 name: rows[0].nickname,
                 point: rows[0].point,
                 token: token
-            });
+            };
         }
+
+        console.info(resJson.message);
+        res.json(resJson);
     });
 });
 
 
-router.post('/signup', function(req, res) {
-
-    console.log(req.body);
-
+router.post('/signup', getUserFromHeader, function(req, res, next) {
     var TAG = '<CLIENT> [/signup]'
 
-    var req_data = req.get('Authorization');
-
-    if (!req_data) {
-        res.json({
-            status: "400",
-            message: "헤더가 비어있습니다."
-        });
-    }
+    res.locals.user.nickname = req.body.nickname
 
     var pool = req.app.locals.pool;
     var mysql_escape = req.app.locals.mysql_escape;
     var con;
-
-    var data = new Buffer(req_data, 'base64').toString('utf-8').split(':');
-    var pw = data[1];
-    for (var i = 2; i < data.length; i++) {
-        pw += data[i]
-    }
-
-    var user = {
-        mail: data[0],
-        pw: pw,
-        nickname: req.body.nickname
-    };
-
-    console.log(req.body);
-    console.log(req_data);
-    console.log(data);
-    console.log(user)
 
     async.waterfall([
         function(callback) {
@@ -225,7 +232,7 @@ router.post('/signup', function(req, res) {
             con = connection;
 
             con.query('SELECT * FROM consumer WHERE mail='
-                    + mysql_escape(user.mail), callback);
+                    + mysql_escape(res.locals.user.mail), callback);
         },
         function(rows, result, callback) {
             if (rows.length > 0) {
@@ -235,17 +242,20 @@ router.post('/signup', function(req, res) {
                 console.log(rows);
                 console.log('---------------------------------');
                 // TODO: 에러 페이지 구현 - [회원가입]이미 존재하는 메일...
-                return res.json({
+                var resJson = {
                     status: "404",
                     message: "이미 존재하는 메일입니다.",
                     field: "mail"
-                });
+                };
+
+                console.info(resJson.message);
+                return res.json(resJson);
             }
             else {
                 console.log(TAG + ' query to check nickname (SELECT)');
 
                 con.query('SELECT * FROM consumer WHERE nickname='
-                        + mysql_escape(user.nickname), callback);
+                        + mysql_escape(res.locals.user.nickname), callback);
             }
         },
         function(rows, result, callback) {
@@ -256,63 +266,108 @@ router.post('/signup', function(req, res) {
                 console.log(rows);
                 console.log('---------------------------------');
                 // TODO: 에러 페이지 구현 - [회원가입]이미 존재하는 이름...
-                res.json({
-                    status:"404",
+                var resJson = {
+                    status: "404",
                     message: "이미 존재하는 이름입니다.",
-                    field:"name"
-                });
+                    field: "name"
+                };
+
+                console.info(resJson.message);
+                return res.json(resJson);
             }
             else {
                 console.log(TAG + ' query to insert user into DB (INSERT)');
 
-                con.query('INSERT INTO consumer SET ?', user, callback);
+                con.query('INSERT INTO consumer SET ?', res.locals.user, callback);
             }
         }
     ],
     function (err, result) {
         con.release();
 
+        var resJson;
+
         if (err) {
             console.error(err);
-            throw err;
+            resJson = {
+                status:"500",
+                message: "오류가 발생했습니다. 다시 시도 해주세요."
+            };
+        }
+        else {
+            console.log(TAG + ' Success sign up finish');
+
+            var token = encrypt(res.locals.user.mail, req.app.locals.pk);
+
+            resJson = {
+                status: "200",
+                message: "회원가입에 성공했습니다.",
+                token: token
+            };
         }
 
-        console.log(TAG + ' Success sign up finish');
-
-        var token = encrypt(user.mail, req.app.locals.pk);
-
-        res.json({
-            status: "200",
-            message: "회원가입에 성공했습니다.",
-            token: token
-        });
+        console.info(resJson.message);
+        res.json(resJson);
     });
-
-    // console.log(req.get('Authorization'));
-    // console.log(req.body);
-    // res.json({ token: req.get('Authorization'), body:req.body});
 });
 
 
-router.post('/add', checkSignIn, function(req, res, next) {
-    var TAG = '<CLIENT> [/add]';
+router.post('/count/add', checkSignIn, function(req, res, next) {
+    var TAG = '<CLIENT> [/count/add]';
     var pool = req.app.locals.pool;
 
     query.addCount(pool, req.body.type + "_files", req.body.count, req.body.id, function(err) {
+        var resJson;
+
         if (err) {
             console.log(TAG + " Can't add count...");
             console.log(req.body);
             console.error(err);
-            return res.json({
-                status: "400",
-                message: "요청이 실패했습니다."
-            });
+            resJson = {
+                status:"500",
+                message: "오류가 발생했습니다. 다시 시도 해주세요."
+            };
+        }
+        else {
+            resJson = {
+                status: "200",
+                message: "카운트 증가에 성공했습니다."
+            };
         }
 
-        return res.json({
-            status: "200",
-            message: "증가에 성공했습니다."
-        });
+
+        console.info(resJson.message);
+        return res.json(resJson);
+    });
+});
+
+
+router.post('/point/add', checkSignIn, function(req, res, next) {
+    var TAG = '<CLIENT> [/point/add]';
+    var pool = req.app.locals.pool;
+
+    query.addPoint(pool, "consumer", 10, res.locals.consumer.user_id, function(err) {
+        var resJson;
+
+        if (err) {
+            console.log(TAG + " Can't add point...");
+            console.log(req.body);
+            console.error(err);
+            resJson = {
+                status:"500",
+                message: "오류가 발생했습니다. 다시 시도 해주세요."
+            };
+        }
+        else {
+            resJson = {
+                status: "200",
+                message: "포인트 증가에 성공했습니다."
+            };
+        }
+
+
+        console.info(resJson.message);
+        return res.json(resJson);
     });
 });
 

@@ -46,17 +46,14 @@
             ///////////////////////////
 
             function getListComplete(response) {
-                var data = response.data;
-
-                if (response.status == 200) {
-                    console.log("Success to get list from server");
-                }
-                else {
-                    console.log('Success to get list but unknown behavior.');
-                }
                 console.log(JSON.stringify(response));
 
-                return response.data;
+                if (response.data.status == 200) {
+                    return response.data.data;
+                }
+                else {
+                    return $q.reject(response.data);
+                }
             }
 
 
@@ -64,7 +61,7 @@
                 console.log('Fail to get list');
                 console.log(error);
 
-                return $q.reject();
+                return $q.reject(error);
             }
         }
 
@@ -86,17 +83,14 @@
             ///////////////////////////
 
             function getListAllComplete(response) {
-                var data = response.data;
-
-                if (response.status == 200) {
-                    console.log("Success to get all list from server");
-                }
-                else {
-                    console.log('Success to get all list but unknown behavior.');
-                }
                 console.log(JSON.stringify(response));
 
-                return response.data;
+                if (response.data.status == 200) {
+                    return response.data.data;
+                }
+                else {
+                    return $q.reject(response.data);
+                }
             }
 
 
@@ -126,17 +120,14 @@
             ///////////////////////////
 
             function deleteItemComplete(response) {
-                var data = response.data;
-
-                if (response.status == 200) {
-                    console.log("Success to delete item from server");
-                }
-                else {
-                    console.log('Success to delete but unknown behavior.');
-                }
                 console.log(JSON.stringify(response));
 
-                return response.data;
+                if (response.data.status == 200) {
+                    return response.data.data;
+                }
+                else {
+                    return $q.reject(response.data);
+                }
             }
 
 
@@ -144,7 +135,7 @@
                 console.log('Fail to delete item');
                 console.log(error);
 
-                return $q.reject();
+                return $q.reject(error);
             }
         }
 
@@ -171,17 +162,14 @@
             ///////////////////////////
 
             function chmodItemComplete(response) {
-                var data = response.data;
-
-                if (response.status == 200) {
-                    console.log("Success to change mode of item from server");
-                }
-                else {
-                    console.log('Success to change mode of item but unknown behavior.');
-                }
                 console.log(JSON.stringify(response));
 
-                return response.data;
+                if (response.data.status == 200) {
+                    return response.data;
+                }
+                else {
+                    return $q.reject(response.data);
+                }
             }
 
 

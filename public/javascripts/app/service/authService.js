@@ -39,7 +39,9 @@
             var reqConfig = {
                 method: 'POST',
                 url: baseUrl + '/users/signin',
-                data: data
+                headers: {
+                    'Authorization': base64.encode(user.mail + ':' + user.pw)
+                }
             };
 
 
@@ -50,17 +52,18 @@
             ///////////////////////////
 
             function signInComplete(response) {
-                var data = response.data;
-
-                if (response.status == 200) {
-                    console.log("Success to login server");
-                }
-                else {
-                    console.log('Success to sign in but unknown behavior.');
-                }
                 console.log(JSON.stringify(response));
 
-                return setUserInfo(data);
+                if (response.data.status == 200) {
+                    var data = response.data.data;
+                    console.log(response.data.message);
+                    return setUserInfo(data);
+                }
+                else {
+                    console.log(response.data.message);
+                    return $q.reject(response.data);
+                }
+
             }
 
 
@@ -68,7 +71,7 @@
                 console.log('Fail to sign in');
                 console.log(JSON.stringify(error));
 
-                return $q.reject();
+                return $q.reject(error);
             }
         }
 
@@ -87,15 +90,19 @@
             ///////////////////////////
 
             function signOutComplete(response) {
-                if (response.status == 200) {
-                    console.log("Success to sign out from server");
+                console.log(JSON.stringify(response));
+                clearUserInfo();
+
+                if (response.data.status == 200) {
+                    var data = response.data.data;
+                    console.log(response.data.message);
+                    return data;
                 }
                 else {
-                    console.log('Success to sign out but unknown behavior.');
+                    console.log(response.data.message);
+                    return $q.reject(response.data);
                 }
-                console.log(JSON.stringify(response));
 
-                clearUserInfo();
 
                 return;
             }
@@ -125,15 +132,16 @@
             ///////////////////////////
 
             function signUpComplete(response) {
-                if (response.status == 200) {
-                    console.log("Success to sign up server");
-                }
-                else {
-                    console.log('Success to sign up but unknown behavior.');
-                }
                 console.log(JSON.stringify(response));
 
-                return response.data.path;
+                if (response.data.status == 200) {
+                    console.log(response.data.message);
+                    return response.data;
+                }
+                else {
+                    console.log(response.data.message);
+                    return $q.reject(response.data);
+                }
             }
 
 
@@ -141,7 +149,7 @@
                 console.log('Fail to sign up');
                 console.log(JSON.stringify(error));
 
-                return $q.reject();
+                return $q.reject(error);
             }
         }
 

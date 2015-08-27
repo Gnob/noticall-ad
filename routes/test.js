@@ -1,5 +1,6 @@
 var express = require('express');
 var async = require('async');
+var fs = require('fs');
 var query = require('./query');
 var multiparty = require('multiparty');
 var router = express.Router();
@@ -320,6 +321,30 @@ router.get('/where', function(req, res, next) {
             res.json(rows);
         });
     });
+});
+
+router.post('/b64', function(req, res, next) {
+    var m4a = new Buffer(req.body.string, 'base64');
+    var seek = req.body.seek;
+    var filename = 'test' + seek + '.m4a';
+    var reqJson;
+    var TAG = '[Base64]';
+
+    if (filename) {
+        fs.writeFileSync(filename, m4a);
+        resJson = {
+            status: "200",
+            message: "인코딩에 성공했습니다."
+        }
+    }
+    else {
+        resJson = {
+            status: "404",
+            message: "인코딩에 실패했습니다."
+        }
+    }
+    console.log(TAG + ' ' + resJson.message);
+    res.json(resJson);
 });
 
 module.exports = router;

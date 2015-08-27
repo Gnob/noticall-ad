@@ -32,15 +32,15 @@
                         console.log('login success routine');
                         console.log(data);
                         if (data.isSuper) {
-                            $location.path('/manager');
+                            $location.path('web/manager');
                         }
                         else {
-                            $location.path('/main');
+                            $location.path('web/main');
                         }
                     })
-                    .catch(function () {
+                    .catch(function (err) {
                         console.log('Sign in canceled');
-
+                        console.log(err);
                         vm.user.pw = '';
                     })
                     .finally(function () {
@@ -58,11 +58,11 @@
         .then(function (userInfo) {
             if (userInfo.isSuper) {
                 console.log('He is manager');
-                $location.path('/manager');
+                $location.path('web/manager');
             }
             else {
                 console.log('He is a user');
-                $location.path('/main');
+                $location.path('web/main');
             }
         })
         .catch(function(err) {

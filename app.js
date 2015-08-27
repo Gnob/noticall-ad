@@ -20,13 +20,15 @@ app.locals.pk = "notIcallAD";
 
 app.locals.mysql_escape = mysql.escape;
 
+app.locals.baseUrl = "http://210.118.74.97:3000/";
+
 app.locals.pool = mysql.createPool({
     host: 'localhost',
     port: 3306,
     user: 'noticall',
     password: 'noticall4',
     database: 'noticall_ad',
-    connectionLimit: 20,
+    connectionLimit: 30,
     waitForConnections: true
 });
 
@@ -47,7 +49,7 @@ app.use(sessions({
 }));
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use('/', routes);
+app.use('/web', routes);
 app.use('/users', users);
 app.use('/files', files);
 app.use('/manager', manager);
