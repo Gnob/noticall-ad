@@ -14,29 +14,31 @@
               <tab heading="목록" active='main.listTab'>
                   <ul class="list-group">
                       <li class="list-group-item" ng-hide="main.list.length">
-                        <h3 class="list-group-item-heading">업로드된 파일이 없습니다. Upload 탭에서 업로드를 해주세요.</h3>
+                        <h3 class="list-group-item-heading colored-red">업로드된 파일이 없습니다. Upload 탭에서 업로드를 해주세요.</h3>
                       </li>
                         <li class="list-group-item" ng-repeat="item in main.showingItems">
 
                                 <div class="row">
-                            <div class="col-sm-2">
-                          <img alt="Test Box" width=100px ng-src="{{ item.uri }}" />
-                            </div>
+                                    <div class="col-sm-2">
+                                        <div class="thumbnail">
+                                  <img alt="Test Box" width=100px ng-src="{{ item.uri }}" />
+                                    </div>
+                                </div>
                             <div class="col-sm-7">
-                          <h3 class="list-group-item-heading">{{ item.title }}</h4>
-                          <p class="list-group-item-text">광고를 들은 횟수 : {{ item.audio_count }} | 포스터를 본 횟수 : {{ item.poster_count }}</p>
+                          <h3 class="list-group-item-heading colored">{{ item.title }}</h4>
+                          <p class="list-group-item-text">광고를 들은 횟수 : {{ item.audio_count }}</p>
                           <div ng-hide="item.allow">
                             <p class="list-group-item-text">
-                            <span class="memo" ng-hide="item.memo">관리자 승인 대기중입니다.</span>
-                            <span class="memo" ng-show="item.memo">{{ item.memo }}</span>
+                            <span class="memo" ng-style="{color:'burlywood'}" ng-hide="item.memo">관리자 승인 대기중입니다.</span>
+                            <span class="memo" ng-style="item.style" ng-show="item.memo">{{ item.memo }}</span>
                             </p>
                           </div>
                         </div>
                         <div class="col-sm-3">
                           <div class="pull-right action-buttons">
-                            <span class="label label-default">{{ item.location }}</span>
-                            <a href="{{main.baseUrl}}/files/down/audio/{{ item.audio_id }}" target="_self" ng-show="item.allow"><span class="glyphicon glyphicon-pencil"></span></a>
-                            <a href="{{main.baseUrl}}/files/down/poster/{{ item.poster_id }}" class="flag" target="_self" ng-show="item.allow"><span class="glyphicon glyphicon-flag"></span></a>
+                                      <span id="main1" class="label label-info">{{ item.location }}</span>
+                                  <a href="{{main.baseUrl}}/files/down/poster/{{ item.poster_id }}" class="flag" target="_self" ng-show="item.allow"><span class="glyphicon glyphicon-picture"></span></a>
+                            <a href="{{main.baseUrl}}/files/down/audio/{{ item.audio_id }}" target="_self" ng-show="item.allow"><span class="glyphicon glyphicon-headphones"></span></a>
                             <a ng-click="main.delete(item.list_id)" class="trash"><span class="glyphicon glyphicon-trash"></span></a>
                           </div>
                       </div>
@@ -57,8 +59,9 @@
                         </select>
                       </div>
                       <div class="col-sm-8">
-                        <input class="form-control" name="title" placeholder="광고 제목을 입력해주세요." ng-model="main.item.title" type="text"
+                        <input class="form-control" name="title" placeholder="광고 제목을 입력해주세요." ng-model="main.item.title" type="text"  ng-maxlength="30"
                           required autofocus />
+                          <p ng-show="uploadForm.title.$error.maxlength" class="help-block">제목이 너무 깁니다. 30자 이내로 해주세요.</p>
                       </div>
                     </div>
                     <div class="form-group">

@@ -18,8 +18,7 @@
 
         // TODO: 지역 Ajax로 받아오기
         vm.baseUrl = baseUrl;
-        vm.locs = ["서울", "경기", "강원", "충북", "충남", "전북", "전남", "경북", "경남", "제주"];
-
+        vm.locs = ["서울", "부산", "대구", "인천", "광주", "대전", "울산", "경기", "강원", "충북", "충남", "전북", "전남", "경북", "경남", "제주"];
         vm.listTab = true;
         vm.curPage = 1;
         vm.numPerPage = 5;
@@ -64,7 +63,7 @@
         vm.signout = function() {
             auth.signOut()
             .then(function () {
-                $location.path('/signin');
+                $location.path('web/signin');
             });
         }
 
@@ -79,10 +78,12 @@
             var memo = '컨텐츠가 부적절합니다.';
             itemCom.chmodItem(vm.userInfo.token, item_id, method, memo)
             .then(function(data) {
-                console.log('success change : ' + data.msg);
+                console.log('success change : ' + data.message);
                 fillList();
             })
             .catch(function(err) {
+                console.log(JSON.stringify(err));
+                console.log('삭제에 실패했습니다.');
                 return err;
             });
         }
@@ -100,20 +101,28 @@
                     .then(function (data) {
                         console.log('success get all list routine');
                         console.log(data);
+                        angular.forEach(data, function(value, key) {
+                            if (value.allow) {
+                                value.style = {color: 'dodgerblue'};
+                            }
+                            else {
+                                value.style = {color: 'red'};
+                            }
+                        });
                         vm.list = data;
                         vm.changePage();
                     })
                     .catch(function () {
                         console.log('fail get all list');
                         auth.clearUserInfo();
-                        $location.path('/signin');
+                        $location.path('web/signin');
                     });
             })
             .catch(function () {
                 console.log('fail get userinfo');
                 auth.signOut();
                 auth.clearUserInfo();
-                $location.path('/signin');
+                $location.path('web/signin');
             });;
         }
         // function(id, index) {

@@ -8,32 +8,32 @@
   var app = angular.module('noticallAD', ['ngRoute', 'ngCookies', 'ui.bootstrap', 'ngFileUpload']);
 
   app.value('projectName', 'Noticall AD Server');
-  //app.value('baseUrl', 'http://210.118.74.170:9000/'); // SECMEM
-  app.value('baseUrl', 'http://localhost:3000'); // House
+  app.value('baseUrl', 'http://210.118.74.97:3000'); // SECMEM
+  // app.value('baseUrl', 'http://localhost:3000'); // House
 
   app.config(function ($routeProvider) {
      $routeProvider
-  .when('/signin', {
+  .when('/web/signin', {
             controller:'SignInCtrl',
             controllerAs: 'signin',
             templateUrl: 'templates/signin.html'
   })
-  .when('/signup', {
+  .when('/web/signup', {
             controller:'SignUpCtrl',
             controllerAs: 'signup',
             templateUrl: 'templates/signup.html'
   })
-  .when('/main', {
+  .when('/web/main', {
             controller:'MainCtrl',
             controllerAs: 'main',
             templateUrl: 'templates/main.html'
   })
-  .when('/manager', {
+  .when('/web/manager', {
             controller:'ManagerCtrl',
             controllerAs: 'manager',
             templateUrl: 'templates/manager.html'
   })
-  .otherwise({ redirectTo: '/signin' });
+  .otherwise({ redirectTo: '/web/signin' });
   });
 
   app.config(function($locationProvider) {

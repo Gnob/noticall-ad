@@ -1,7 +1,7 @@
 
 <div class="row">
   <div class="col-xs-12 col-sm-12 col-md-offset-2 col-md-8">
-      <div class="panel panel-success">
+      <div class="panel panel-info">
         <div class="panel-heading">
           <div class="width-50 inline-block">
             <legend class="legend-margin"><i class="glyphicon glyphicon-globe"></i> Manager page</legend>
@@ -14,32 +14,49 @@
               <tab heading="목록" active='manager.listTab'>
                   <ul class="list-group">
                       <li class="list-group-item" ng-hide="manager.list.length">
-                        <h3 class="list-group-item-heading">업로드된 파일이 없습니다.</h3>
+                        <h3 class="list-group-item-heading colored-red">업로드된 파일이 없습니다.</h3>
                       </li>
                         <li class="list-group-item" ng-repeat="item in manager.showingItems">
 
                                 <div class="row">
                             <div class="col-sm-2">
+                                <div class="thumbnail">
                           <img alt="Test Box" width=100px ng-src="{{ item.uri }}" />
                             </div>
+                        </div>
                             <div class="col-sm-7">
-                          <h3 class="list-group-item-heading">{{ item.title }}</h4>
-                          <p class="list-group-item-text">광고를 들은 횟수 : {{ item.audio_count }} | 포스터를 본 횟수 : {{ item.poster_count }}</p>
+                          <h3 class="list-group-item-heading colored">{{ item.title }}</h4>
+                          <p class="list-group-item-text">광고를 들은 횟수 : {{ item.audio_count }}</p>
                             <p class="list-group-item-text">
-                            <span class="memo" ng-show="!item.allow && !item.memo">관리자 승인 대기중입니다.</span>
-                            <span class="memo" ng-show="!item.allow && item.memo">{{ item.memo }}</span>
-                            <span class="memo" ng-show="item.allow">승인된 항목입니다.</span>
+                            <span class="memo" ng-style="{color:'burlywood'}" ng-show="!item.allow && !item.memo">관리자 승인 대기중입니다.</span>
+                            <span class="memo" ng-style="item.style" ng-show="!item.allow && item.memo">{{ item.memo }}</span>
+                            <span class="memo" ng-style="item.style" ng-show="item.allow">승인된 항목입니다.</span>
                             </p>
                         </div>
                         <div class="col-sm-3">
                           <div class="pull-right action-buttons">
-                            <span class="label label-default">{{ item.location }}</span>
+                              <div class="row">
+                                  <div class="col-sm-12">
+                                      <span class="label label-info">{{ item.location }}</span>
                             <a ng-click="manager.chmod(item.item_id, 'allow')" class="ok"><span class="glyphicon glyphicon-ok-circle"></span></a>
                             <a ng-click="manager.chmod(item.item_id, 'disallow')" class="ban"><span class="glyphicon glyphicon-ban-circle"></span></a>
-                            <a href="{{manager.baseUrl}}/files/down/audio/{{ item.audio_id }}" target="_self"><span class="glyphicon glyphicon-pencil"></span></a>
-                            <a href="{{manager.baseUrl}}/files/down/poster/{{ item.poster_id }}" class="flag" target="_self"><span class="glyphicon glyphicon-flag"></span></a>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <div class="pull-right">
+                            <a href="{{manager.baseUrl}}/files/down/audio/{{ item.audio_id }}" target="_self"><span class="glyphicon glyphicon-headphones"></span></a>
+                            <a href="{{manager.baseUrl}}/files/down/poster/{{ item.poster_id }}" class="flag" target="_self"><span class="glyphicon glyphicon-picture"></span></a>
+                        </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <div class="pull-right">
                             <a ng-click="manager.delete(item.list_id)" class="trash"><span class="glyphicon glyphicon-trash"></span></a>
                           </div>
+                          </div>
+                      </div>
                       </div>
                   </div>
                         </li>
